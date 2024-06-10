@@ -1,7 +1,7 @@
 # Few Utility Functions
 
 [![License](https://img.shields.io/github/license/ddc/ddcLogs.svg?style=plastic)](https://github.com/ddc/ddcLogs/blob/master/LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.12+-blue.svg?style=plastic)](https://www.python.org)
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg?style=plastic)](https://www.python.org)
 [![PyPi](https://img.shields.io/pypi/v/ddcLogs.svg?style=plastic)](https://pypi.python.org/pypi/ddcLogs)
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A//actions-badge.atrox.dev/ddc/ddcLogs/badge?ref=main&style=plastic&label=build&logo=none)](https://actions-badge.atrox.dev/ddc/ddcLogs/goto?ref=main)
 
