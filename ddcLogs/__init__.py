@@ -3,9 +3,11 @@ from importlib.metadata import version
 from typing import Literal, NamedTuple
 from .timed_rotating import TimedRotatingLog
 from .size_rotating import SizeRotatingLog
+from .basic_log import BasicLog
 
 
 __all__ = (
+    "BasicLog",
     "TimedRotatingLog",
     "SizeRotatingLog",
 )

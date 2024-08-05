@@ -12,7 +12,38 @@ pip install ddcLogs
 ```
 
 
-# Logs
+# BasicLog
++ Setup Logging
+```python
+from ddcLogs import BasicLog
+log = BasicLog(
+    level = "info",
+    datefmt = "%Y-%m-%dT%H:%M:%S",
+    encoding = "UTF-8",
+)
+log.init()
+```
+
+
+# SizeRotatingLog
++ Setup Logging
+    + Logs will rotate based on the file size
+```python
+from ddcLogs import SizeRotatingLog
+log = SizeRotatingLog(
+    level = "info",
+    directory = "logs",
+    filename = "app.log",
+    encoding = "UTF-8",
+    datefmt = "%Y-%m-%dT%H:%M:%S",
+    days_to_keep = 7,
+    max_mbytes = 5
+)
+log.init()
+```
+
+
+# TimedRotatingLog
 + Setup Logging
     + Logs will rotate based on `when` variable to a `.tar.gz` file, defaults to `midnight`
     + Logs will be deleted based on the `days_to_keep` variable, defaults to 7
@@ -30,6 +61,7 @@ log = TimedRotatingLog(
     directory = "logs",
     filename = "app.log",
     encoding = "UTF-8",
+    datefmt = "%Y-%m-%dT%H:%M:%S",
     days_to_keep = 7,
     when = "midnight",
     utc = True
