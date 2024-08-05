@@ -15,6 +15,7 @@ class SizeRotatingLog:
         directory: str = "logs",
         filename: str = "app.log",
         encoding: str = "UTF-8",
+        datefmt: str = "%Y-%m-%dT%H:%M:%S",
         days_to_keep: int = 7,
         max_mbytes: int = 5
     ):
@@ -22,6 +23,7 @@ class SizeRotatingLog:
         self.directory = directory
         self.filename = filename
         self.encoding = encoding
+        self.datefmt = datefmt
         self.days_to_keep = days_to_keep
         self.max_mbytes = max_mbytes
 
@@ -35,7 +37,7 @@ class SizeRotatingLog:
                                         delay=False,
                                         errors=None)
         file_hdlr.rotator = GZipRotatorSize(self.directory, self.days_to_keep)
-        return set_log_format(file_hdlr, self.level)
+        return set_log_format(file_hdlr, self.level, self.datefmt)
 
 
 class GZipRotatorSize:

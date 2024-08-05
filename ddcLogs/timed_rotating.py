@@ -23,6 +23,7 @@ class TimedRotatingLog:
         directory: str = "logs",
         filename: str = "app.log",
         encoding: str = "UTF-8",
+        datefmt: str = "%Y-%m-%dT%H:%M:%S",
         days_to_keep: int = 7,
         when: str = "midnight",
         utc: bool = True,
@@ -31,6 +32,7 @@ class TimedRotatingLog:
         self.directory = directory
         self.filename = filename
         self.encoding = encoding
+        self.datefmt = datefmt
         self.days_to_keep = days_to_keep
         self.when = when
         self.utc = utc
@@ -44,7 +46,7 @@ class TimedRotatingLog:
                                              backupCount=self.days_to_keep)
         file_hdlr.suffix = "%Y%m%d"
         file_hdlr.rotator = GZipRotatorTimed(self.directory, self.days_to_keep)
-        return set_log_format(file_hdlr, self.level)
+        return set_log_format(file_hdlr, self.level, self.datefmt)
 
 
 class GZipRotatorTimed:
