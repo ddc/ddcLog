@@ -21,7 +21,7 @@ class RemoveOldLogs:
                     write_stderr(f"[Unable to remove old logs]:{get_exception(e)}: {file_path}")
 
 
-def list_files(directory: str, ends_with: str | tuple[str, ...] | list[str] = None) -> tuple:
+def list_files(directory: str, ends_with: str) -> tuple:
     """
     List all files in the given directory and returns them in a list sorted by creation time in ascending order
     :param directory:
@@ -33,7 +33,7 @@ def list_files(directory: str, ends_with: str | tuple[str, ...] | list[str] = No
         result: list = []
         if os.path.isdir(directory):
             result: list = [Path(os.path.join(directory, f)) for f in os.listdir(directory) if
-                            f.lower().endswith(tuple(ends_with))]
+                            f.lower().endswith(ends_with)]
             result.sort(key=os.path.getctime)
         return tuple(result)
     except Exception as e:
