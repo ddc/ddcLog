@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "ddcLogs"
-version = "1.0.6"
+version = "1.0.7"
 description = "Custom log with rotations"
 license = "MIT"
 readme = "README.md"

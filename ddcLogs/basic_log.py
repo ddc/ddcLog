@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 import logging
-from .log_utils import get_level
+from .log_utils import get_level, get_format
 
 
 class BasicLog:
@@ -15,11 +15,7 @@ class BasicLog:
         self.encoding = encoding
 
     def init(self):
-        _debug_formatt = ""
-        if self.level == logging.DEBUG:
-            _debug_formatt = "[%(filename)s:%(funcName)s:%(lineno)d]:"
-
-        formatt = f"[%(asctime)s.%(msecs)03d]:[%(levelname)s]:[NTL]:{_debug_formatt}%(message)s"
-        logging.basicConfig(level=self.level, datefmt=self.datefmt, encoding=self.encoding, format=formatt)
-        logger = logging.getLogger(__name__)
+        fmt = get_format(self.level)
+        logging.basicConfig(level=self.level, datefmt=self.datefmt, encoding=self.encoding, format=fmt)
+        logger = logging.getLogger()
         return logger

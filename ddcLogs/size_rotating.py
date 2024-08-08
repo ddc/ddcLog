@@ -1,7 +1,16 @@
 # -*- encoding: utf-8 -*-
 import os
 from logging.handlers import RotatingFileHandler
-from .log_utils import RemoveOldLogs, get_level, get_log_path, set_log_format, gzip_file, write_stderr, list_files, get_exception
+from .log_utils import (
+    RemoveOldLogs,
+    get_level,
+    get_log_path,
+    set_file_log_format,
+    gzip_file,
+    write_stderr,
+    list_files,
+    get_exception,
+)
 
 
 class SizeRotatingLog:
@@ -37,7 +46,7 @@ class SizeRotatingLog:
                                         delay=False,
                                         errors=None)
         file_hdlr.rotator = GZipRotatorSize(self.directory, self.days_to_keep)
-        return set_log_format(file_hdlr, self.level, self.datefmt)
+        return set_file_log_format(file_hdlr, self.level, self.datefmt)
 
 
 class GZipRotatorSize:
