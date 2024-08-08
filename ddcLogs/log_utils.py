@@ -156,7 +156,16 @@ def get_log_path(directory: str, filename: str) -> str:
     return log_file_path
 
 
-def set_log_format(file_hdlr, level: logging, datefmt: str) -> logging.Logger:
+def get_format(level: logging):
+    _debug_fmt = ""
+    if level == logging.DEBUG:
+        _debug_fmt = f"[PID:{os.getpid()}]:[%(filename)s:%(funcName)s:%(lineno)d]:"
+
+    fmt = f"[%(asctime)s.%(msecs)03d]:[%(levelname)s]:{_debug_fmt}%(message)s"
+    return fmt
+
+
+def set_file_log_format(file_hdlr, level: logging, datefmt: str) -> logging.Logger:
     """
     Set log format
     :param file_hdlr:
@@ -165,12 +174,8 @@ def set_log_format(file_hdlr, level: logging, datefmt: str) -> logging.Logger:
     :return: logger
     """
 
-    _debug_formatt = ""
-    if level == logging.DEBUG:
-        _debug_formatt = f"[PID:{os.getpid()}]:[%(filename)s:%(funcName)s:%(lineno)d]:"
-
-    formatt = f"[%(asctime)s.%(msecs)03d]:[%(levelname)s]:{_debug_formatt}%(message)s"
-    formatter = logging.Formatter(formatt, datefmt=datefmt)
+    fmt = get_format(level)
+    formatter = logging.Formatter(fmt, datefmt=datefmt)
 
     logger = logging.getLogger()
     logger.setLevel(level)

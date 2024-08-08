@@ -1,7 +1,13 @@
 # -*- encoding: utf-8 -*-
 import os
 from logging.handlers import TimedRotatingFileHandler
-from .log_utils import RemoveOldLogs, get_level, get_log_path, set_log_format, gzip_file
+from .log_utils import (
+    RemoveOldLogs,
+    get_level,
+    get_log_path,
+    set_file_log_format,
+    gzip_file,
+)
 
 
 class TimedRotatingLog:
@@ -46,7 +52,7 @@ class TimedRotatingLog:
                                              backupCount=self.days_to_keep)
         file_hdlr.suffix = "%Y%m%d"
         file_hdlr.rotator = GZipRotatorTimed(self.directory, self.days_to_keep)
-        return set_log_format(file_hdlr, self.level, self.datefmt)
+        return set_file_log_format(file_hdlr, self.level, self.datefmt)
 
 
 class GZipRotatorTimed:
