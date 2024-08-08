@@ -15,7 +15,11 @@ class BasicLog:
         self.encoding = encoding
 
     def init(self):
-        formatt = "[%(asctime)s.%(msecs)03d]:[%(levelname)s]:%(message)s"
-        logging.basicConfig(level=logging.INFO, encoding=self.encoding, format=formatt, datefmt=self.datefmt)
+        _debug_formatt = ""
+        if self.level == logging.DEBUG:
+            _debug_formatt = "[%(filename)s:%(funcName)s:%(lineno)d]:"
+
+        formatt = f"[%(asctime)s.%(msecs)03d]:[%(levelname)s]:[NTL]:{_debug_formatt}%(message)s"
+        logging.basicConfig(level=self.level, datefmt=self.datefmt, encoding=self.encoding, format=formatt)
         logger = logging.getLogger(__name__)
         return logger
