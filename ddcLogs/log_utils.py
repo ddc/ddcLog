@@ -6,7 +6,6 @@ import os
 import shutil
 import sys
 from datetime import datetime, timedelta
-from pathlib import Path
 
 
 class RemoveOldLogs:
@@ -32,7 +31,7 @@ def list_files(directory: str, ends_with: str) -> tuple:
     try:
         result: list = []
         if os.path.isdir(directory):
-            result: list = [Path(os.path.join(directory, f)) for f in os.listdir(directory) if
+            result: list = [os.path.join(directory, f) for f in os.listdir(directory) if
                             f.lower().endswith(ends_with)]
             result.sort(key=os.path.getctime)
         return tuple(result)
@@ -156,25 +155,26 @@ def get_log_path(directory: str, filename: str) -> str:
     return log_file_path
 
 
-def get_format(level: logging):
+def get_format(level: logging, name: str) -> str:
     _debug_fmt = ""
     if level == logging.DEBUG:
         _debug_fmt = f"[PID:{os.getpid()}]:[%(filename)s:%(funcName)s:%(lineno)d]:"
 
-    fmt = f"[%(asctime)s.%(msecs)03d]:[%(levelname)s]:{_debug_fmt}%(message)s"
+    fmt = f"[%(asctime)s.%(msecs)03d]:[%(levelname)s]:[{name}]:{_debug_fmt}%(message)s"
     return fmt
 
 
-def set_file_log_format(file_hdlr, level: logging, datefmt: str) -> logging.Logger:
+def set_file_log_format(file_hdlr, level: logging, datefmt: str, name: str) -> logging.Logger:
     """
     Set log format
     :param file_hdlr:
     :param level:
     :param datefmt:
+    :param name:
     :return: logger
     """
 
-    fmt = get_format(level)
+    fmt = get_format(level, name)
     formatter = logging.Formatter(fmt, datefmt=datefmt)
 
     logger = logging.getLogger()

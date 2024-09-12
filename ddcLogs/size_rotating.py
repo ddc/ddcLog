@@ -26,7 +26,8 @@ class SizeRotatingLog:
         encoding: str = "UTF-8",
         datefmt: str = "%Y-%m-%dT%H:%M:%S",
         days_to_keep: int = 7,
-        max_mbytes: int = 5
+        max_mbytes: int = 5,
+        name: str = "UNDEFINED",
     ):
         self.level = get_level(level)
         self.directory = directory
@@ -35,6 +36,7 @@ class SizeRotatingLog:
         self.datefmt = datefmt
         self.days_to_keep = days_to_keep
         self.max_mbytes = max_mbytes
+        self.name = name.lower()
 
     def init(self):
         log_file_path = get_log_path(self.directory, self.filename)
@@ -46,7 +48,7 @@ class SizeRotatingLog:
                                         delay=False,
                                         errors=None)
         file_hdlr.rotator = GZipRotatorSize(self.directory, self.days_to_keep)
-        return set_file_log_format(file_hdlr, self.level, self.datefmt)
+        return set_file_log_format(file_hdlr, self.level, self.datefmt, self.name)
 
 
 class GZipRotatorSize:
