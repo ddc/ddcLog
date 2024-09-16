@@ -139,7 +139,7 @@ def get_log_path(directory: str, filename: str) -> str:
     """
 
     try:
-        os.makedirs(directory, exist_ok=True) if not os.path.isdir(directory) else None
+        os.makedirs(directory, mode=0o777, exist_ok=True) if not os.path.isdir(directory) else None
     except Exception as e:
         write_stderr(f"[Unable to create logs directory]:{get_exception(e)}: {directory}")
         raise e
@@ -147,6 +147,7 @@ def get_log_path(directory: str, filename: str) -> str:
     log_file_path = str(os.path.join(directory, filename))
 
     try:
+        os.chmod(log_file_path , 0o777)
         open(log_file_path, "a+").close()
     except IOError as e:
         write_stderr(f"[Unable to open log file for writing]:{get_exception(e)}: {log_file_path}")
@@ -208,5 +209,6 @@ def gzip_file(source, output_partial_name) -> gzip:
                 with gzip.open(renamed_dst, "wb") as fout:
                     fout.writelines(fin)
             remove(source)
+            os.chmod(renamed_dst , 0o777)
         except Exception as e:
             write_stderr(f"[Unable to zip log file]:{get_exception(e)}: {source}")
