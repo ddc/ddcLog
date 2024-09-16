@@ -36,7 +36,7 @@ def list_files(directory: str, ends_with: str) -> tuple:
             result.sort(key=os.path.getctime)
         return tuple(result)
     except Exception as e:
-        sys.stderr.write(get_exception(e))
+        write_stderr(get_exception(e))
         raise e
 
 
@@ -54,7 +54,7 @@ def remove(path: str) -> bool:
         else:
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), path)
     except OSError as e:
-        sys.stderr.write(get_exception(e))
+        write_stderr(get_exception(e))
         raise e
     return True
 
@@ -156,7 +156,7 @@ def get_log_path(directory: str, filename: str) -> str:
         if os.path.isfile(log_file_path):
             os.chmod(log_file_path , 0o777)
     except OSError as e:
-        sys.stderr.write(f"[ERROR]:Unable to set log file permissions:{str(e)}: {log_file_path}\n")
+        write_stderr(f"Unable to set log file permissions:{str(e)}: {log_file_path}\n")
         raise e
 
     return log_file_path
@@ -166,7 +166,6 @@ def get_format(level: logging, name: str) -> str:
     _debug_fmt = ""
     if level == logging.DEBUG:
         _debug_fmt = f"[PID:{os.getpid()}]:[%(filename)s:%(funcName)s:%(lineno)d]:"
-
     fmt = f"[%(asctime)s.%(msecs)03d]:[%(levelname)s]:[{name}]:{_debug_fmt}%(message)s"
     return fmt
 
@@ -215,7 +214,6 @@ def gzip_file(source, output_partial_name) -> gzip:
             with open(source, "rb") as fin:
                 with gzip.open(renamed_dst, "wb") as fout:
                     fout.writelines(fin)
-            remove(source)
         except Exception as e:
             write_stderr(f"Unable to zip log file:{get_exception(e)}: {source}")
             raise e
@@ -224,5 +222,11 @@ def gzip_file(source, output_partial_name) -> gzip:
             if os.path.isfile(renamed_dst):
                 os.chmod(renamed_dst , 0o777)
         except OSError as e:
-            sys.stderr.write(f"[ERROR]:Unable to set log file permissions:{str(e)}: {renamed_dst}\n")
+            write_stderr(f"Unable to set log file permissions:{get_exception(e)}: {renamed_dst}\n")
+            raise e
+
+        try:
+            remove(source)
+        except OSError as e:
+            write_stderr(f"Unable to remove old source log file:{get_exception(e)}: {source}")
             raise e
