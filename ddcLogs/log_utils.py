@@ -208,14 +208,21 @@ def gzip_file(source, output_partial_name) -> gzip:
     """
 
     if os.path.isfile(source) and os.stat(source).st_size > 0:
+        sfname, sext = os.path.splitext(source)
+        renamed_dst = f"{sfname}_{output_partial_name}{sext}.gz"
+
         try:
-            sfname, sext = os.path.splitext(source)
-            renamed_dst = f"{sfname}_{output_partial_name}{sext}.gz"
             with open(source, "rb") as fin:
                 with gzip.open(renamed_dst, "wb") as fout:
                     fout.writelines(fin)
             remove(source)
-            if os.path.exists(renamed_dst):
-                os.chmod(renamed_dst , 0o777)
         except Exception as e:
             write_stderr(f"Unable to zip log file:{get_exception(e)}: {source}")
+            raise e
+
+        try:
+            if os.path.isfile(renamed_dst):
+                os.chmod(renamed_dst , 0o777)
+        except OSError as e:
+            sys.stderr.write(f"[ERROR]:Unable to set log file permissions:{str(e)}: {renamed_dst}\n")
+            raise e
