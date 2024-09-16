@@ -17,7 +17,7 @@ class RemoveOldLogs:
                 try:
                     remove(file_path)
                 except Exception as e:
-                    write_stderr(f"[Unable to remove old logs]:{get_exception(e)}: {file_path}")
+                    write_stderr(f"Unable to remove old logs:{get_exception(e)}: {file_path}")
 
 
 def list_files(directory: str, ends_with: str) -> tuple:
@@ -115,7 +115,7 @@ def get_level(level: str) -> logging:
     """
 
     if not isinstance(level, str):
-        write_stderr("[Unable to get log level]. Default level to: 'info'")
+        write_stderr(f"Unable to get log level. Setting default level to: 'INFO' ({logging.INFO})")
         return logging.INFO
     match level.lower():
         case "debug":
@@ -141,16 +141,22 @@ def get_log_path(directory: str, filename: str) -> str:
     try:
         os.makedirs(directory, mode=0o777, exist_ok=True) if not os.path.isdir(directory) else None
     except Exception as e:
-        write_stderr(f"[Unable to create logs directory]:{get_exception(e)}: {directory}")
+        write_stderr(f"Unable to create logs directory:{get_exception(e)}: {directory}")
         raise e
 
     log_file_path = str(os.path.join(directory, filename))
 
     try:
-        os.chmod(log_file_path , 0o777)
         open(log_file_path, "a+").close()
     except IOError as e:
-        write_stderr(f"[Unable to open log file for writing]:{get_exception(e)}: {log_file_path}")
+        write_stderr(f"Unable to open log file for writing:{get_exception(e)}: {log_file_path}")
+        raise e
+
+    try:
+        if os.path.isfile(log_file_path):
+            os.chmod(log_file_path , 0o777)
+    except OSError as e:
+        sys.stderr.write(f"[ERROR]:Unable to set log file permissions:{str(e)}: {log_file_path}\n")
         raise e
 
     return log_file_path
@@ -209,6 +215,7 @@ def gzip_file(source, output_partial_name) -> gzip:
                 with gzip.open(renamed_dst, "wb") as fout:
                     fout.writelines(fin)
             remove(source)
-            os.chmod(renamed_dst , 0o777)
+            if os.path.exists(renamed_dst):
+                os.chmod(renamed_dst , 0o777)
         except Exception as e:
-            write_stderr(f"[Unable to zip log file]:{get_exception(e)}: {source}")
+            write_stderr(f"Unable to zip log file:{get_exception(e)}: {source}")
