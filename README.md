@@ -79,16 +79,26 @@ log.init()
 poetry build
 ```
 
+### Publish to test pypi
+```shell
+poetry publish -r test-pypi
+```
+
+### Publish to pypi
+```shell
+poetry publish
+```
+
 
 ### Run Tests
 ```shell
-poe test
+poetry run coverage run -m pytest -v
 ```
 
 
 ### Get Coverage Report
 ```shell
-poe coverage
+poetry run coverage report
 ```
 
 
