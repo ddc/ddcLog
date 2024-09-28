@@ -12,12 +12,11 @@ class RemoveOldLogs:
     def __init__(self, logs_dir: str, days_to_keep: int) -> None:
         files_list = list_files(logs_dir, ends_with=".gz")
         for file in files_list:
-            file_path = str(os.path.join(logs_dir, file))
-            if is_older_than_x_days(file_path, days_to_keep):
+            if is_older_than_x_days(file, days_to_keep):
                 try:
-                    remove(file_path)
+                    remove(file)
                 except Exception as e:
-                    write_stderr(f"Unable to remove old logs:{get_exception(e)}: {file_path}")
+                    write_stderr(f"Unable to remove old logs:{get_exception(e)}: {file}")
 
 
 def list_files(directory: str, ends_with: str) -> tuple:
@@ -75,9 +74,10 @@ def is_older_than_x_days(path: str, days: int) -> bool:
     else:
         cutoff_time = datetime.today() - timedelta(days=int(days))
 
-    stats = os.stat(path)
-    days_epoch = cutoff_time.timestamp()
-    if stats.st_ctime < days_epoch:
+    file_timestamp = os.stat(path).st_mtime
+    file_time = datetime.fromtimestamp(file_timestamp)
+
+    if file_time < cutoff_time:
         return True
     return False
 
