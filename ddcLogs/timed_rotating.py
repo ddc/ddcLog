@@ -2,7 +2,7 @@
 import os
 from logging.handlers import TimedRotatingFileHandler
 from .log_utils import (
-    RemoveOldLogs,
+    remove_old_logs,
     get_level,
     get_log_path,
     set_file_log_format,
@@ -63,6 +63,6 @@ class GZipRotatorTimed:
         self.days_to_keep = days_to_keep
 
     def __call__(self, source: str, dest: str) -> None:
-        RemoveOldLogs(self.dir, self.days_to_keep)
+        remove_old_logs(self.dir, self.days_to_keep)
         output_dated_name = os.path.splitext(dest)[1].replace(".", "")
         gzip_file(source, output_dated_name)

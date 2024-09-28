@@ -8,15 +8,14 @@ import sys
 from datetime import datetime, timedelta
 
 
-class RemoveOldLogs:
-    def __init__(self, logs_dir: str, days_to_keep: int) -> None:
-        files_list = list_files(logs_dir, ends_with=".gz")
-        for file in files_list:
+def remove_old_logs(logs_dir: str, days_to_keep: int) -> None:
+    files_list = list_files(logs_dir, ends_with=".gz")
+    for file in files_list:
+        try:
             if is_older_than_x_days(file, days_to_keep):
-                try:
-                    remove(file)
-                except Exception as e:
-                    write_stderr(f"Unable to remove old logs:{get_exception(e)}: {file}")
+                remove(file)
+        except Exception as e:
+            write_stderr(f"Unable to remove old logs:{get_exception(e)}: {file}")
 
 
 def list_files(directory: str, ends_with: str) -> tuple:
@@ -32,7 +31,7 @@ def list_files(directory: str, ends_with: str) -> tuple:
         if os.path.isdir(directory):
             result: list = [os.path.join(directory, f) for f in os.listdir(directory) if
                             f.lower().endswith(ends_with)]
-            result.sort(key=os.path.getctime)
+            result.sort(key=os.path.getmtime)
         return tuple(result)
     except Exception as e:
         write_stderr(get_exception(e))
@@ -69,10 +68,14 @@ def is_older_than_x_days(path: str, days: int) -> bool:
     if not os.path.exists(path):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), path)
 
-    if int(days) == 1:
-        cutoff_time = datetime.today()
-    else:
-        cutoff_time = datetime.today() - timedelta(days=int(days))
+    try:
+        if int(days) in (0, 1):
+            cutoff_time = datetime.today()
+        else:
+            cutoff_time = datetime.today() - timedelta(days=int(days))
+    except ValueError as e:
+        write_stderr(get_exception(e))
+        raise e
 
     file_timestamp = os.stat(path).st_mtime
     file_time = datetime.fromtimestamp(file_timestamp)

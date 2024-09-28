@@ -2,7 +2,7 @@
 import os
 from logging.handlers import RotatingFileHandler
 from .log_utils import (
-    RemoveOldLogs,
+    remove_old_logs,
     get_level,
     get_log_path,
     set_file_log_format,
@@ -57,7 +57,7 @@ class GZipRotatorSize:
         self.days_to_keep = days_to_keep
 
     def __call__(self, source: str, dest: str) -> None:
-        RemoveOldLogs(self.dir, self.days_to_keep)
+        remove_old_logs(self.dir, self.days_to_keep)
         if os.path.isfile(source) and os.stat(source).st_size > 0:
             new_file_number = 1
             old_gz_files_list = list_files(self.dir, ends_with=".gz")
