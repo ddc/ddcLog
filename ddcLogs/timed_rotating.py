@@ -33,6 +33,7 @@ class TimedRotatingLog:
         days_to_keep: int = 7,
         when: str = "midnight",
         utc: bool = True,
+        name: str = "UNDEFINED",
     ):
         self.level = get_level(level)
         self.directory = directory
@@ -42,6 +43,7 @@ class TimedRotatingLog:
         self.days_to_keep = days_to_keep
         self.when = when
         self.utc = utc
+        self.name = name.lower()
 
     def init(self):
         log_file_path = get_log_path(self.directory, self.filename)
@@ -52,7 +54,7 @@ class TimedRotatingLog:
                                              backupCount=self.days_to_keep)
         file_hdlr.suffix = "%Y%m%d"
         file_hdlr.rotator = GZipRotatorTimed(self.directory, self.days_to_keep)
-        return set_file_log_format(file_hdlr, self.level, self.datefmt)
+        return set_file_log_format(file_hdlr, self.level, self.datefmt, self.name)
 
 
 class GZipRotatorTimed:

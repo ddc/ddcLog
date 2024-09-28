@@ -6,7 +6,6 @@ import os
 import shutil
 import sys
 from datetime import datetime, timedelta
-from pathlib import Path
 
 
 class RemoveOldLogs:
@@ -18,7 +17,7 @@ class RemoveOldLogs:
                 try:
                     remove(file_path)
                 except Exception as e:
-                    write_stderr(f"[Unable to remove old logs]:{get_exception(e)}: {file_path}")
+                    write_stderr(f"Unable to remove old logs:{get_exception(e)}: {file_path}")
 
 
 def list_files(directory: str, ends_with: str) -> tuple:
@@ -32,12 +31,12 @@ def list_files(directory: str, ends_with: str) -> tuple:
     try:
         result: list = []
         if os.path.isdir(directory):
-            result: list = [Path(os.path.join(directory, f)) for f in os.listdir(directory) if
+            result: list = [os.path.join(directory, f) for f in os.listdir(directory) if
                             f.lower().endswith(ends_with)]
             result.sort(key=os.path.getctime)
         return tuple(result)
     except Exception as e:
-        sys.stderr.write(get_exception(e))
+        write_stderr(get_exception(e))
         raise e
 
 
@@ -55,7 +54,7 @@ def remove(path: str) -> bool:
         else:
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), path)
     except OSError as e:
-        sys.stderr.write(get_exception(e))
+        write_stderr(get_exception(e))
         raise e
     return True
 
@@ -116,7 +115,7 @@ def get_level(level: str) -> logging:
     """
 
     if not isinstance(level, str):
-        write_stderr("[Unable to get log level]. Default level to: 'info'")
+        write_stderr(f"Unable to get log level. Setting default level to: 'INFO' ({logging.INFO})")
         return logging.INFO
     match level.lower():
         case "debug":
@@ -140,9 +139,9 @@ def get_log_path(directory: str, filename: str) -> str:
     """
 
     try:
-        os.makedirs(directory, exist_ok=True) if not os.path.isdir(directory) else None
+        os.makedirs(directory, mode=0o777, exist_ok=True) if not os.path.isdir(directory) else None
     except Exception as e:
-        write_stderr(f"[Unable to create logs directory]:{get_exception(e)}: {directory}")
+        write_stderr(f"Unable to create logs directory:{get_exception(e)}: {directory}")
         raise e
 
     log_file_path = str(os.path.join(directory, filename))
@@ -150,31 +149,38 @@ def get_log_path(directory: str, filename: str) -> str:
     try:
         open(log_file_path, "a+").close()
     except IOError as e:
-        write_stderr(f"[Unable to open log file for writing]:{get_exception(e)}: {log_file_path}")
+        write_stderr(f"Unable to open log file for writing:{get_exception(e)}: {log_file_path}")
+        raise e
+
+    try:
+        if os.path.isfile(log_file_path):
+            os.chmod(log_file_path , 0o777)
+    except OSError as e:
+        write_stderr(f"Unable to set log file permissions:{str(e)}: {log_file_path}\n")
         raise e
 
     return log_file_path
 
 
-def get_format(level: logging):
+def get_format(level: logging, name: str) -> str:
     _debug_fmt = ""
     if level == logging.DEBUG:
         _debug_fmt = f"[PID:{os.getpid()}]:[%(filename)s:%(funcName)s:%(lineno)d]:"
-
-    fmt = f"[%(asctime)s.%(msecs)03d]:[%(levelname)s]:{_debug_fmt}%(message)s"
+    fmt = f"[%(asctime)s.%(msecs)03d]:[%(levelname)s]:[{name}]:{_debug_fmt}%(message)s"
     return fmt
 
 
-def set_file_log_format(file_hdlr, level: logging, datefmt: str) -> logging.Logger:
+def set_file_log_format(file_hdlr, level: logging, datefmt: str, name: str) -> logging.Logger:
     """
     Set log format
     :param file_hdlr:
     :param level:
     :param datefmt:
+    :param name:
     :return: logger
     """
 
-    fmt = get_format(level)
+    fmt = get_format(level, name)
     formatter = logging.Formatter(fmt, datefmt=datefmt)
 
     logger = logging.getLogger()
@@ -201,12 +207,26 @@ def gzip_file(source, output_partial_name) -> gzip:
     """
 
     if os.path.isfile(source) and os.stat(source).st_size > 0:
+        sfname, sext = os.path.splitext(source)
+        renamed_dst = f"{sfname}_{output_partial_name}{sext}.gz"
+
         try:
-            sfname, sext = os.path.splitext(source)
-            renamed_dst = f"{sfname}_{output_partial_name}{sext}.gz"
             with open(source, "rb") as fin:
                 with gzip.open(renamed_dst, "wb") as fout:
                     fout.writelines(fin)
-            remove(source)
         except Exception as e:
-            write_stderr(f"[Unable to zip log file]:{get_exception(e)}: {source}")
+            write_stderr(f"Unable to zip log file:{get_exception(e)}: {source}")
+            raise e
+
+        try:
+            if os.path.isfile(renamed_dst):
+                os.chmod(renamed_dst , 0o777)
+        except OSError as e:
+            write_stderr(f"Unable to set log file permissions:{get_exception(e)}: {renamed_dst}\n")
+            raise e
+
+        try:
+            remove(source)
+        except OSError as e:
+            write_stderr(f"Unable to remove old source log file:{get_exception(e)}: {source}")
+            raise e

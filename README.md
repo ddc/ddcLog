@@ -20,6 +20,7 @@ log = BasicLog(
     level = "info",
     datefmt = "%Y-%m-%dT%H:%M:%S",
     encoding = "UTF-8",
+    name = "app"
 )
 log.init()
 ```
@@ -37,7 +38,8 @@ log = SizeRotatingLog(
     encoding = "UTF-8",
     datefmt = "%Y-%m-%dT%H:%M:%S",
     days_to_keep = 7,
-    max_mbytes = 5
+    max_mbytes = 5,
+    name = "app"
 )
 log.init()
 ```
@@ -64,7 +66,8 @@ log = TimedRotatingLog(
     datefmt = "%Y-%m-%dT%H:%M:%S",
     days_to_keep = 7,
     when = "midnight",
-    utc = True
+    utc = True,
+    name = "app"
 )
 log.init()
 ```
@@ -76,16 +79,26 @@ log.init()
 poetry build
 ```
 
+### Publish to test pypi
+```shell
+poetry publish -r test-pypi
+```
+
+### Publish to pypi
+```shell
+poetry publish
+```
+
 
 ### Run Tests
 ```shell
-poe test
+poetry run coverage run -m pytest -v
 ```
 
 
 ### Get Coverage Report
 ```shell
-poe coverage
+poetry run coverage report
 ```
 
 
