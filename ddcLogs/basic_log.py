@@ -9,15 +9,18 @@ class BasicLog:
         level: str = "info",
         datefmt: str = "%Y-%m-%dT%H:%M:%S",
         encoding: str = "UTF-8",
-        name: str = "UNDEFINED",
+        name: str = None,
     ):
         self.level = get_level(level)
         self.datefmt = datefmt
         self.encoding = encoding
-        self.name = name.lower()
+        self.name = name
 
     def init(self):
-        fmt = get_format(self.level, self.name)
-        logging.basicConfig(level=self.level, datefmt=self.datefmt, encoding=self.encoding, format=fmt)
+        if not self.name:
+            self.name = "app"
+
+        formatt = get_format(self.level, self.name)
+        logging.basicConfig(level=self.level, datefmt=self.datefmt, encoding=self.encoding, format=formatt)
         logger = logging.getLogger()
         return logger

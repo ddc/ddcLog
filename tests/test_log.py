@@ -3,7 +3,7 @@ import os
 import tempfile
 from datetime import datetime
 from ddcLogs import SizeRotatingLog, TimedRotatingLog
-from ddcLogs.log_utils import remove
+from ddcLogs.log_utils import delete_file
 
 
 class TestLogs:
@@ -11,43 +11,58 @@ class TestLogs:
     def setup_class(cls):
         cls.level = "debug"
         cls.directory = tempfile.gettempdir()
-        cls.filename = "test.log"
-        cls.file_path = os.path.join(cls.directory, cls.filename)
+        cls.filenames = ("test1.log", "test2.log")
 
     @classmethod
     def teardown_class(cls):
-        remove(str(os.path.join(cls.directory, cls.filename)))
+        for filename in cls.filenames:
+            file_path = str(os.path.join(cls.directory, filename))
+            if os.path.isfile(file_path):
+                delete_file(file_path)
 
     def test_timed_rotating_log(self):
         year = 2020
         month = 10
         day = 10
 
-        log = TimedRotatingLog(directory=self.directory, level=self.level, filename=self.filename).init()
+        log = TimedRotatingLog(directory=self.directory, level=self.level, filenames=self.filenames).init()
         log.debug("start")
-        epoch_times = datetime(year, month, day, 1, 1, 1).timestamp()
-        os.utime(self.file_path, (epoch_times, epoch_times))
 
-        log = TimedRotatingLog(directory=self.directory, level=self.level, filename=self.filename).init()
+        # change files datetime
+        epoch_times = datetime(year, month, day, 1, 1, 1).timestamp()
+        for filename in self.filenames:
+            file_path = str(os.path.join(self.directory, filename))
+            os.utime(file_path, (epoch_times, epoch_times))
+
+        log = TimedRotatingLog(directory=self.directory, level=self.level, filenames=self.filenames).init()
         log.debug("end")
-        gz_file_name = f"{os.path.splitext(self.filename)[0]}_{year}{month}{day}.log.gz"
-        gz_file_path = os.path.join(tempfile.gettempdir(), gz_file_name)
-        assert os.path.exists(gz_file_path)
-        remove(str(gz_file_path))
+
+        # delete test.gz files
+        for filename in self.filenames:
+            gz_file_name = f"{os.path.splitext(filename)[0]}_{year}{month}{day}.log.gz"
+            gz_file_path = os.path.join(tempfile.gettempdir(), gz_file_name)
+            assert os.path.exists(gz_file_path)
+            delete_file(str(gz_file_path))
 
     def test_sized_rotating_log(self):
-        # creating file with 2MB
-        with open(self.file_path, "wb") as f:
-            f.seek((2 * 1024 * 1024) - 1)
-            f.write(b"\0")
+        # creating files with 2MB
+        for filename in self.filenames:
+            file_path = str(os.path.join(self.directory, filename))
+            with open(file_path, "wb") as f:
+                f.seek((2 * 1024 * 1024) - 1)
+                f.write(b"\0")
 
         max_mbytes = 1
         log = SizeRotatingLog(directory=self.directory,
                               level=self.level,
-                              filename=self.filename,
+                              filenames=self.filenames,
                               max_mbytes=max_mbytes).init()
+
         log.debug("test")
-        gz_file_name = f"{os.path.splitext(self.filename)[0]}_1.log.gz"
-        gz_file_path = os.path.join(tempfile.gettempdir(), gz_file_name)
-        assert os.path.exists(gz_file_path)
-        remove(str(gz_file_path))
+
+        # delete test.gz files
+        for i, filename in enumerate(self.filenames, 1):
+            gz_file_name = f"{os.path.splitext(filename)[0]}_{i}.log.gz"
+            gz_file_path = os.path.join(tempfile.gettempdir(), gz_file_name)
+            assert os.path.exists(gz_file_path)
+            delete_file(str(gz_file_path))

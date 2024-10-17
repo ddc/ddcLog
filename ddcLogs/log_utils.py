@@ -13,9 +13,9 @@ def remove_old_logs(logs_dir: str, days_to_keep: int) -> None:
     for file in files_list:
         try:
             if is_older_than_x_days(file, days_to_keep):
-                remove(file)
+                delete_file(file)
         except Exception as e:
-            write_stderr(f"Unable to remove old logs:{get_exception(e)}: {file}")
+            write_stderr(f"Unable to delete_file old logs | {get_exception(e)} | {file}")
 
 
 def list_files(directory: str, ends_with: str) -> tuple:
@@ -38,7 +38,7 @@ def list_files(directory: str, ends_with: str) -> tuple:
         raise e
 
 
-def remove(path: str) -> bool:
+def delete_file(path: str) -> bool:
     """
     Remove the given file and returns True if the file was successfully removed
     :param path:
@@ -118,16 +118,20 @@ def get_level(level: str) -> logging:
     """
 
     if not isinstance(level, str):
-        write_stderr(f"Unable to get log level. Setting default level to: 'INFO' ({logging.INFO})")
+        write_stderr(
+            "Unable to get log level. "
+            "Setting default level to: 'INFO' "
+            f"({logging.INFO})")
         return logging.INFO
+
     match level.lower():
         case "debug":
             return logging.DEBUG
-        case "warning":
+        case "warning" | "warn":
             return logging.WARNING
         case "error":
             return logging.ERROR
-        case "critical":
+        case "critical" | "crit":
             return logging.CRITICAL
         case _:
             return logging.INFO
@@ -142,9 +146,9 @@ def get_log_path(directory: str, filename: str) -> str:
     """
 
     try:
-        os.makedirs(directory, mode=0o777, exist_ok=True) if not os.path.isdir(directory) else None
+        os.makedirs(directory, mode=0o755, exist_ok=True) if not os.path.isdir(directory) else None
     except Exception as e:
-        write_stderr(f"Unable to create logs directory:{get_exception(e)}: {directory}")
+        write_stderr(f"Unable to create logs directory | {get_exception(e)} | {directory}")
         raise e
 
     log_file_path = str(os.path.join(directory, filename))
@@ -152,53 +156,31 @@ def get_log_path(directory: str, filename: str) -> str:
     try:
         open(log_file_path, "a+").close()
     except IOError as e:
-        write_stderr(f"Unable to open log file for writing:{get_exception(e)}: {log_file_path}")
+        write_stderr(f"Unable to open log file for writing | {get_exception(e)} | {log_file_path}")
         raise e
 
     try:
         if os.path.isfile(log_file_path):
-            os.chmod(log_file_path , 0o777)
+            os.chmod(log_file_path , 0o755)
     except OSError as e:
-        write_stderr(f"Unable to set log file permissions:{str(e)}: {log_file_path}\n")
+        write_stderr(f"Unable to set log file permissions | {get_exception(e)} | {log_file_path}")
         raise e
 
     return log_file_path
 
 
-def get_format(level: logging, name: str) -> str:
+def get_format(show_location: bool, name: str | None) -> str:
     _debug_fmt = ""
-    if level == logging.DEBUG:
-        _debug_fmt = f"[PID:{os.getpid()}]:[%(filename)s:%(funcName)s:%(lineno)d]:"
-    fmt = f"[%(asctime)s.%(msecs)03d]:[%(levelname)s]:[{name}]:{_debug_fmt}%(message)s"
+    _logger_name = ""
+
+    if name:
+        _logger_name = f"[{name}]:"
+
+    if show_location:
+        _debug_fmt = "[%(filename)s:%(funcName)s:%(lineno)d]:"
+
+    fmt = f"[%(asctime)s.%(msecs)03d]:[%(levelname)s]:{_logger_name}{_debug_fmt}%(message)s"
     return fmt
-
-
-def set_file_log_format(file_hdlr, level: logging, datefmt: str, name: str) -> logging.Logger:
-    """
-    Set log format
-    :param file_hdlr:
-    :param level:
-    :param datefmt:
-    :param name:
-    :return: logger
-    """
-
-    fmt = get_format(level, name)
-    formatter = logging.Formatter(fmt, datefmt=datefmt)
-
-    logger = logging.getLogger()
-    logger.setLevel(level)
-
-    file_hdlr.setFormatter(formatter)
-    file_hdlr.setLevel(level)
-    logger.addHandler(file_hdlr)
-
-    stream_hdlr = logging.StreamHandler()
-    stream_hdlr.setFormatter(formatter)
-    stream_hdlr.setLevel(level)
-    logger.addHandler(stream_hdlr)
-
-    return logger
 
 
 def gzip_file(source, output_partial_name) -> gzip:
@@ -218,18 +200,18 @@ def gzip_file(source, output_partial_name) -> gzip:
                 with gzip.open(renamed_dst, "wb") as fout:
                     fout.writelines(fin)
         except Exception as e:
-            write_stderr(f"Unable to zip log file:{get_exception(e)}: {source}")
+            write_stderr(f"Unable to zip log file | {get_exception(e)} | {source}")
             raise e
 
         try:
             if os.path.isfile(renamed_dst):
-                os.chmod(renamed_dst , 0o777)
+                os.chmod(renamed_dst , 0o755)
         except OSError as e:
-            write_stderr(f"Unable to set log file permissions:{get_exception(e)}: {renamed_dst}\n")
+            write_stderr(f"Unable to set log file permissions | {get_exception(e)} | {renamed_dst}")
             raise e
 
         try:
-            remove(source)
+            delete_file(source)
         except OSError as e:
-            write_stderr(f"Unable to remove old source log file:{get_exception(e)}: {source}")
+            write_stderr(f"Unable to delete_file old source log file | {get_exception(e)} | {source}")
             raise e
