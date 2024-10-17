@@ -159,12 +159,12 @@ def get_log_path(directory: str, filename: str) -> str:
         write_stderr(f"Unable to open log file for writing | {get_exception(e)} | {log_file_path}")
         raise e
 
-    try:
-        if os.path.isfile(log_file_path):
-            os.chmod(log_file_path , 0o755)
-    except OSError as e:
-        write_stderr(f"Unable to set log file permissions | {get_exception(e)} | {log_file_path}")
-        raise e
+    # try:
+    #     if os.path.isfile(log_file_path):
+    #         os.chmod(log_file_path , 0o755)
+    # except OSError as e:
+    #     write_stderr(f"Unable to set log file permissions | {get_exception(e)} | {log_file_path}")
+    #     raise e
 
     return log_file_path
 
@@ -203,12 +203,12 @@ def gzip_file(source, output_partial_name) -> gzip:
             write_stderr(f"Unable to zip log file | {get_exception(e)} | {source}")
             raise e
 
-        try:
-            if os.path.isfile(renamed_dst):
-                os.chmod(renamed_dst , 0o755)
-        except OSError as e:
-            write_stderr(f"Unable to set log file permissions | {get_exception(e)} | {renamed_dst}")
-            raise e
+        # try:
+        #     if os.path.isfile(renamed_dst):
+        #         os.chmod(renamed_dst , 0o755)
+        # except OSError as e:
+        #     write_stderr(f"Unable to set log file permissions | {get_exception(e)} | {renamed_dst}")
+        #     raise e
 
         try:
             delete_file(source)
