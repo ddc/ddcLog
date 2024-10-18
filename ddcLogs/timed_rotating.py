@@ -33,7 +33,7 @@ class TimedRotatingLog:
         encoding: str = "UTF-8",
         datefmt: str = "%Y-%m-%dT%H:%M:%S",
         sufix: str =  "%Y%m%d",
-        days_to_keep: int = 7,
+        days_to_keep: int = 30,
         when: str = "midnight",
         utc: bool = True,
         name: str = None,

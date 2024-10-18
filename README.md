@@ -24,6 +24,7 @@ log.init()
 # SizeRotatingLog
 + Setup Logging
     + Logs will rotate based on the file size
+    + Logs will be deleted based on the `days_to_keep` variable, defaults to 30
 ```python
 from ddcLogs import SizeRotatingLog
 log = SizeRotatingLog(
@@ -43,7 +44,7 @@ log.init()
 # TimedRotatingLog
 + Setup Logging
     + Logs will rotate based on `when` variable to a `.gz` file, defaults to `midnight`
-    + Logs will be deleted based on the `days_to_keep` variable, defaults to 7
+    + Logs will be deleted based on the `days_to_keep` variable, defaults to 30
     + Current 'when' events supported:
         + S - Seconds
         + M - Minutes

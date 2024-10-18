@@ -25,8 +25,8 @@ class SizeRotatingLog:
         filenames: list | tuple = ("app.log",),
         encoding: str = "UTF-8",
         datefmt: str = "%Y-%m-%dT%H:%M:%S",
-        days_to_keep: int = 7,
-        max_mbytes: int = 5,
+        days_to_keep: int = 30,
+        max_mbytes: int = 50,
         name: str = None,
         stream_handler: bool = True,
         show_location: bool = False,
@@ -96,22 +96,27 @@ class SizeRotatingLog:
 
 class GZipRotatorSize:
     def __init__(self, dir_logs: str, days_to_keep: int):
-        self.dir = dir_logs
+        self.directory = dir_logs
         self.days_to_keep = days_to_keep
 
     def __call__(self, source: str, dest: str) -> None:
-        remove_old_logs(self.dir, self.days_to_keep)
+        remove_old_logs(self.directory, self.days_to_keep)
         if os.path.isfile(source) and os.stat(source).st_size > 0:
+            source_filename, _ = os.path.basename(source).split(".")
             new_file_number = 1
-            old_gz_files_list = list_files(self.dir, ends_with=".gz")
-            if old_gz_files_list:
-                try:
-                    oldest_file_name = old_gz_files_list[-1].split(".")[0].split("_")
-                    if len(oldest_file_name) > 1:
-                        new_file_number = int(oldest_file_name[1]) + 1
-                except ValueError as e:
-                    write_stderr(
-                        "[Unable to get old zip log file number] | "
-                        f"{get_exception(e)} | "
-                        f"{old_gz_files_list[-1]}")
-            gzip_file(source, new_file_number)
+            previous_gz_files_list = list_files(self.directory, ends_with=".gz")
+            for gz_file in previous_gz_files_list:
+                if source_filename in gz_file:
+                    try:
+                        oldest_file_name = gz_file.split(".")[0].split("_")
+                        if len(oldest_file_name) > 1:
+                            new_file_number = int(oldest_file_name[1]) + 1
+                    except ValueError as e:
+                        write_stderr(
+                            "Unable to get old zip log file number | "
+                            f"{str(e)} | "
+                            f"{gz_file}"
+                        )
+
+            if os.path.isfile(source):
+                gzip_file(source, new_file_number)
