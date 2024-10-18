@@ -113,10 +113,11 @@ class GZipRotatorSize:
                             new_file_number = int(oldest_file_name[1]) + 1
                     except ValueError as e:
                         write_stderr(
-                            "Unable to get old zip log file number | "
-                            f"{str(e)} | "
-                            f"{gz_file}"
+                            "Unable to get previous gz log file number | "
+                            f"{gz_file} | "
+                            f"{get_exception(e)}"
                         )
+                        raise
 
             if os.path.isfile(source):
                 gzip_file(source, new_file_number)

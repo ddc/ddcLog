@@ -15,7 +15,11 @@ def remove_old_logs(logs_dir: str, days_to_keep: int) -> None:
             if is_older_than_x_days(file, days_to_keep):
                 delete_file(file)
         except Exception as e:
-            write_stderr(f"Unable to delete_file old logs | {get_exception(e)} | {file}")
+            write_stderr(
+                f"Unable to delete passed {days_to_keep} days logs | "
+                f"{file} | "
+                f"{get_exception(e)}"
+            )
 
 
 def list_files(directory: str, ends_with: str) -> tuple:
@@ -148,7 +152,7 @@ def get_log_path(directory: str, filename: str) -> str:
     try:
         os.makedirs(directory, mode=0o755, exist_ok=True) if not os.path.isdir(directory) else None
     except Exception as e:
-        write_stderr(f"Unable to create logs directory | {get_exception(e)} | {directory}")
+        write_stderr(f"Unable to create logs directory | {directory} | {get_exception(e)}")
         raise e
 
     log_file_path = str(os.path.join(directory, filename))
@@ -156,7 +160,7 @@ def get_log_path(directory: str, filename: str) -> str:
     try:
         open(log_file_path, "a+").close()
     except IOError as e:
-        write_stderr(f"Unable to open log file for writing | {get_exception(e)} | {log_file_path}")
+        write_stderr(f"Unable to open log file for writing | {log_file_path} | {get_exception(e)}")
         raise e
 
     # try:
@@ -200,7 +204,7 @@ def gzip_file(source, output_partial_name) -> gzip:
                 with gzip.open(renamed_dst, "wb") as fout:
                     fout.writelines(fin)
         except Exception as e:
-            write_stderr(f"Unable to zip log file | {get_exception(e)} | {source}")
+            write_stderr(f"Unable to zip log file | {source} | {get_exception(e)}")
             raise e
 
         # try:
@@ -213,5 +217,5 @@ def gzip_file(source, output_partial_name) -> gzip:
         try:
             delete_file(source)
         except OSError as e:
-            write_stderr(f"Unable to delete_file old source log file | {get_exception(e)} | {source}")
+            write_stderr(f"Unable to delete_file old source log file | {source} | {get_exception(e)}")
             raise e
