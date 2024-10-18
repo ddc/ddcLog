@@ -44,7 +44,7 @@ class TestLogs:
             assert os.path.exists(gz_file_path)
             delete_file(str(gz_file_path))
 
-    def test_sized_rotating_log(self):
+    def test_size_rotating_log(self):
         # creating files with 2MB
         for filename in self.filenames:
             file_path = str(os.path.join(self.directory, filename))
@@ -61,8 +61,8 @@ class TestLogs:
         log.debug("test")
 
         # delete test.gz files
-        for i, filename in enumerate(self.filenames, 1):
-            gz_file_name = f"{os.path.splitext(filename)[0]}_{i}.log.gz"
+        for filename in self.filenames:
+            gz_file_name = f"{os.path.splitext(filename)[0]}_1.log.gz"
             gz_file_path = os.path.join(tempfile.gettempdir(), gz_file_name)
-            assert os.path.exists(gz_file_path)
-            delete_file(str(gz_file_path))
+            assert os.path.isfile(gz_file_path)
+            delete_file(gz_file_path)
