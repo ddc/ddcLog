@@ -14,10 +14,6 @@ from .log_utils import (
 
 
 class SizeRotatingLog:
-    """
-    SizeRotatingLog class
-    """
-
     def __init__(
         self,
         level: str = "info",

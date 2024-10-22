@@ -16,8 +16,8 @@ pip install ddcLogs
 + Setup Logging
 ```python
 from ddcLogs import BasicLog
-log = BasicLog(level="info")
-log.init()
+logger = BasicLog(level="info").init()
+logger.warning("This is a warning example")
 ```
 
 
@@ -27,17 +27,17 @@ log.init()
     + Logs will be deleted based on the `days_to_keep` variable, defaults to 30
 ```python
 from ddcLogs import SizeRotatingLog
-log = SizeRotatingLog(
+logger = SizeRotatingLog(
     level = "info",
     directory = "logs",
     filenames = ["app.log", "app1.log"],
     days_to_keep = 7,
     max_mbytes = 5,
-    name = "app",
-    stream_handler = True,
-    show_location = False # this will show the filename and the line number where the message originated
-)
-log.init()
+    name = "app_name",
+    stream_handler = True, # Add stream handler along with file handler
+    show_location = False # This will show the filename and the line number where the message originated
+).init()
+logger.warning("This is a warning example")
 ```
 
 
@@ -46,27 +46,27 @@ log.init()
     + Logs will rotate based on `when` variable to a `.gz` file, defaults to `midnight`
     + Logs will be deleted based on the `days_to_keep` variable, defaults to 30
     + Current 'when' events supported:
-        + S - Seconds
-        + M - Minutes
-        + H - Hours
-        + D - Days
         + midnight - roll over at midnight
         + W{0-6} - roll over on a certain day; 0 - Monday
 ```python
 from ddcLogs import TimedRotatingLog
-log = TimedRotatingLog(
+logger = TimedRotatingLog(
     level = "info",
     directory = "logs",
     filenames = ["app.log", "app1.log"],
     days_to_keep = 7,
     when = "midnight",
     utc = True,
-    name = "app",
-    stream_handler = True,
-    show_location = False # this will show the filename and the line number where the message originated
-)
-log.init()
+    name = "app_name",
+    stream_handler = True, # Add stream handler along with file handler
+    show_location = False # This will show the filename and the line number where the message originated
+).init()
+logger.warning("This is a warning example")
 ```
+
+## Example of output
+
+`[2024-10-08T19:08:56.918]:[WARNING]:[app_name]:This is a warning example`
 
 
 # Source Code

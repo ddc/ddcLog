@@ -14,15 +14,9 @@ from .log_utils import (
 
 class TimedRotatingLog:
     """
-    TimedRotatingLog class
-
     Current 'when' events supported:
-    S - Seconds
-    M - Minutes
-    H - Hours
-    D - Days
-    midnight - roll over at midnight
-    W{0-6} - roll over on a certain day; 0 - Monday
+        midnight - roll over at midnight
+        W{0-6} - roll over on a certain day; 0 - Monday
     """
 
     def __init__(
