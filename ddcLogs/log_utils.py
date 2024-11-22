@@ -111,7 +111,19 @@ def write_stderr(msg: str) -> None:
     :return: None
     """
 
-    sys.stdout.write(f"[ERROR]:{msg}\n")
+    time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    sys.stderr.write(f"[{time}]:[ERROR]:{msg}\n")
+
+
+def write_stdout(msg: str) -> None:
+    """
+    Write msg to stdout
+    :param msg:
+    :return: None
+    """
+
+    time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    sys.stdout.write(f"[{time}]:[WARNING]:{msg}\n")
 
 
 def get_level(level: str) -> logging:

@@ -64,6 +64,8 @@ class TimedRotatingLog:
 
         logger = logging.getLogger(self.name)
         logger.setLevel(self.level)
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
 
         for file in self.filenames:
             try:
