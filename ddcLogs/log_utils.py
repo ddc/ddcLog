@@ -111,7 +111,7 @@ def write_stderr(msg: str) -> None:
     :return: None
     """
 
-    time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
     sys.stderr.write(f"[{time}]:[ERROR]:{msg}\n")
 
 
@@ -122,7 +122,7 @@ def write_stdout(msg: str) -> None:
     :return: None
     """
 
-    time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
     sys.stdout.write(f"[{time}]:[WARNING]:{msg}\n")
 
 
