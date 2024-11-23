@@ -22,8 +22,8 @@ class TestLogs:
 
     def test_basic_log(self, caplog):
         log = BasicLog(level=self.level).init()
-        log.debug("start")
-        assert "start" in caplog.text
+        log.debug("test_basic_log")
+        assert "test_basic_log" in caplog.text
 
     def test_size_rotating_log(self, caplog):
         # creating files with 2MB
@@ -39,8 +39,8 @@ class TestLogs:
                               filenames=self.filenames,
                               max_mbytes=max_mbytes).init()
 
-        log.debug("test")
-        assert "test" in caplog.text
+        log.debug("test_size_rotating_log")
+        assert "test_size_rotating_log" in caplog.text
 
         # delete test.gz files
         for filename in self.filenames:
@@ -59,8 +59,8 @@ class TestLogs:
             level=self.level,
             filenames=self.filenames
         ).init()
-        log.debug("start")
-        assert "start" in caplog.text
+        log.debug("start_test_timed_rotating_log")
+        assert "start_test_timed_rotating_log" in caplog.text
 
         # change files datetime
         epoch_times = datetime(year, month, day, 1, 1, 1).timestamp()
@@ -73,8 +73,8 @@ class TestLogs:
             level=self.level,
             filenames=self.filenames
         ).init()
-        log.debug("end")
-        assert "end" in caplog.text
+        log.debug("end_test_timed_rotating_log")
+        assert "end_test_timed_rotating_log" in caplog.text
 
         # delete test.gz files
         for filename in self.filenames:

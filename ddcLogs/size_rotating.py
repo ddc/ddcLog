@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 import logging.handlers
 import os
+from dotenv import load_dotenv
 from .log_utils import (
     check_directory_permissions,
     check_filename_instance,
@@ -8,39 +9,45 @@ from .log_utils import (
     get_level,
     get_log_path,
     get_logger_and_formatter,
+    get_stream_handler,
     gzip_file,
     list_files,
     remove_old_logs,
     write_stderr
 )
+from .settings import LogSettings
+
+
+load_dotenv()
+settings = LogSettings()
 
 
 class SizeRotatingLog:
     def __init__(
         self,
-        level: str = "info",
-        directory: str = "logs",
-        filenames: list | tuple = None,
-        encoding: str = "UTF-8",
-        datefmt: str = "%Y-%m-%dT%H:%M:%S",
-        days_to_keep: int = 30,
-        max_mbytes: int = 50,
-        name: str = None,
-        utc: bool = True,
-        stream_handler: bool = True,
-        show_location: bool = False,
+        level: str = settings.level,
+        name: str = settings.name,
+        directory: str = settings.directory,
+        filenames: list | tuple = (settings.filename,),
+        encoding: str = settings.encoding,
+        datefmt: str = settings.date_format,
+        days_to_keep: int = int(settings.days_to_keep),
+        utc: bool = settings.utc,
+        stream_handler: bool = settings.stream_handler,
+        show_location: bool = settings.show_location,
+        max_mbytes: int = int(settings.max_file_size_mb),
     ):
         self.level = get_level(level)
+        self.name = name
         self.directory = directory
-        self.name = "app" if not name else name
-        self.filenames = (f"{self.name}.log",) if not filenames else filenames
+        self.filenames = filenames
         self.encoding = encoding
         self.datefmt = datefmt
         self.days_to_keep = days_to_keep
-        self.max_mbytes = max_mbytes
         self.utc = utc
         self.stream_handler = stream_handler
         self.show_location = show_location
+        self.max_mbytes = max_mbytes
 
     def init(self):
         check_filename_instance(self.filenames)
@@ -73,9 +80,7 @@ class SizeRotatingLog:
             logger.addHandler(file_handler)
 
         if self.stream_handler:
-            stream_hdlr = logging.StreamHandler()
-            stream_hdlr.setFormatter(formatter)
-            stream_hdlr.setLevel(self.level)
+            stream_hdlr = get_stream_handler(self.level, formatter)
             logger.addHandler(stream_hdlr)
 
         return logger

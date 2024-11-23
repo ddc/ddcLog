@@ -9,10 +9,23 @@ import time
 from datetime import datetime, timedelta
 
 
-def get_logger_and_formatter(name: str,
-                             datefmt: str,
-                             show_location: bool,
-                             utc: bool) -> [logging.Logger, logging.Formatter]:
+def get_stream_handler(
+    level: int,
+    formatter: logging.Formatter,
+) -> logging.StreamHandler:
+
+    stream_hdlr = logging.StreamHandler()
+    stream_hdlr.setFormatter(formatter)
+    stream_hdlr.setLevel(level)
+    return stream_hdlr
+
+
+def get_logger_and_formatter(
+    name: str,
+     datefmt: str,
+     show_location: bool,
+     utc: bool,
+) -> [logging.Logger, logging.Formatter]:
 
     logger = logging.getLogger(name)
     for handler in logger.handlers[:]:
@@ -153,8 +166,8 @@ def write_stderr(msg: str) -> None:
     :return: None
     """
 
-    time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
-    sys.stderr.write(f"[{time}]:[ERROR]:{msg}\n")
+    dt = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
+    sys.stderr.write(f"[{dt}]:[ERROR]:{msg}\n")
 
 
 def write_stdout(msg: str) -> None:
@@ -164,8 +177,8 @@ def write_stdout(msg: str) -> None:
     :return: None
     """
 
-    time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
-    sys.stdout.write(f"[{time}]:[WARNING]:{msg}\n")
+    dt = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
+    sys.stdout.write(f"[{dt}]:[WARNING]:{msg}\n")
 
 
 def get_level(level: str) -> logging:
