@@ -14,9 +14,15 @@ pip install ddcLogs
 
 # BasicLog
 + Setup Logging
+     + This is just a basic log, it does not use any file
 ```python
 from ddcLogs import BasicLog
-logger = BasicLog(level="info").init()
+logger = BasicLog(
+    level="info",
+    name = "app",
+    utc = True,
+    show_location = False, # This will show the filename and the line number where the message originated
+).init()
 logger.warning("This is a warning example")
 ```
 
@@ -33,7 +39,8 @@ logger = SizeRotatingLog(
     filenames = ["app.log", "app1.log"],
     days_to_keep = 7,
     max_mbytes = 5,
-    name = "app_name",
+    name = "app",
+    utc = True,
     stream_handler = True, # Add stream handler along with file handler
     show_location = False # This will show the filename and the line number where the message originated
 ).init()
@@ -56,8 +63,8 @@ logger = TimedRotatingLog(
     filenames = ["app.log", "app1.log"],
     days_to_keep = 7,
     when = "midnight",
+    name = "app",
     utc = True,
-    name = "app_name",
     stream_handler = True, # Add stream handler along with file handler
     show_location = False # This will show the filename and the line number where the message originated
 ).init()
@@ -66,7 +73,7 @@ logger.warning("This is a warning example")
 
 ## Example of output
 
-`[2024-10-08T19:08:56.918]:[WARNING]:[app_name]:This is a warning example`
+`[2024-10-08T19:08:56.918]:[WARNING]:[app]:This is a warning example`
 
 
 # Source Code

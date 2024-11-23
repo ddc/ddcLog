@@ -1,14 +1,14 @@
 # -*- encoding: utf-8 -*-
-import os
 import logging.handlers
+import os
 from .log_utils import (
-    get_exception,
-    get_format,
+    check_directory_permissions,
+    check_filename_instance,
     get_level,
     get_log_path,
+    get_logger_and_formatter,
     gzip_file,
-    remove_old_logs,
-    write_stderr
+    remove_old_logs
 )
 
 
@@ -23,60 +23,42 @@ class TimedRotatingLog:
         self,
         level: str = "info",
         directory: str = "logs",
-        filenames: list | tuple = ("app.log",),
+        filenames: list | tuple = None,
         encoding: str = "UTF-8",
         datefmt: str = "%Y-%m-%dT%H:%M:%S",
         sufix: str =  "%Y%m%d",
         days_to_keep: int = 30,
         when: str = "midnight",
-        utc: bool = True,
         name: str = None,
+        utc: bool = True,
         stream_handler: bool = True,
         show_location: bool = False,
     ):
         self.level = get_level(level)
         self.directory = directory
-        self.filenames = filenames
+        self.name = "app" if not name else name
+        self.filenames = (f"{self.name}.log",) if not filenames else filenames
         self.encoding = encoding
         self.datefmt = datefmt
         self.sufix = sufix
         self.days_to_keep = days_to_keep
         self.when = when
         self.utc = utc
-        self.name = name
         self.stream_handler = stream_handler
         self.show_location = show_location
 
     def init(self):
-        if not isinstance(self.filenames, list | tuple):
-            write_stderr(
-                "Unable to parse filenames. "
-                "Filenames are not list or tuple. | "
-                f"{self.filenames}"
-            )
-            return
+        check_filename_instance(self.filenames)
+        check_directory_permissions(self.directory)
 
-        formatt = get_format(self.show_location, self.name)
-        formatter = logging.Formatter(formatt, datefmt=self.datefmt)
-
-        if not self.name:
-            self.name = "app"
-
-        logger = logging.getLogger(self.name)
+        logger, formatter = get_logger_and_formatter(self.name,
+                                                     self.datefmt,
+                                                     self.show_location,
+                                                     self.utc)
         logger.setLevel(self.level)
-        for handler in logger.handlers[:]:
-            logger.removeHandler(handler)
 
         for file in self.filenames:
-            try:
-                log_file_path = get_log_path(self.directory, file)
-            except Exception as e:
-                write_stderr(
-                    "Unable to create logs. | "
-                    f"{self.directory} | "
-                    f"{get_exception(e)}"
-                )
-                return
+            log_file_path = get_log_path(self.directory, file)
 
             file_handler = logging.handlers.TimedRotatingFileHandler(
                 filename=log_file_path,
@@ -86,7 +68,10 @@ class TimedRotatingLog:
                 backupCount=self.days_to_keep
             )
             file_handler.suffix = self.sufix
-            file_handler.rotator = GZipRotatorTimed(self.directory, self.days_to_keep)
+            file_handler.rotator = GZipRotatorTimed(
+                self.directory,
+                self.days_to_keep
+            )
             file_handler.setFormatter(formatter)
             file_handler.setLevel(self.level)
             logger.addHandler(file_handler)

@@ -5,7 +5,48 @@ import logging.handlers
 import os
 import shutil
 import sys
+import time
 from datetime import datetime, timedelta
+
+
+def get_logger_and_formatter(name: str,
+                             datefmt: str,
+                             show_location: bool,
+                             utc: bool) -> [logging.Logger, logging.Formatter]:
+
+    logger = logging.getLogger(name)
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+
+    formatt = get_format(show_location, name)
+    formatter = logging.Formatter(formatt, datefmt=datefmt)
+    formatter.converter = time.gmtime if utc else None
+    return logger, formatter
+
+
+def check_filename_instance(filenames: list | tuple) -> None:
+    if not isinstance(filenames, list | tuple):
+        err_msg = (
+            "Unable to parse filenames. "
+            "Filename instance is not list or tuple. | "
+            f"{filenames}"
+        )
+        write_stderr(err_msg)
+        raise TypeError(err_msg)
+
+
+def check_directory_permissions(directory_path: str) -> None:
+    if os.path.isdir(directory_path) and not os.access(directory_path, os.R_OK | os.W_OK | os.X_OK):
+        write_stderr(f"Unable to access directory | {directory_path}")
+        raise OSError(errno.EACCES)
+
+    try:
+        if not os.path.isdir(directory_path):
+            os.makedirs(directory_path, mode=0o755, exist_ok=True)
+    except OSError as e:
+        err_msg = f"Unable to create directory | {directory_path}"
+        write_stderr(f"{err_msg} | {get_exception(e)}")
+        raise e
 
 
 def remove_old_logs(logs_dir: str, days_to_keep: int) -> None:
@@ -160,12 +201,6 @@ def get_log_path(directory: str, filename: str) -> str:
     :param filename:
     :return: path as str
     """
-
-    try:
-        os.makedirs(directory, mode=0o755, exist_ok=True) if not os.path.isdir(directory) else None
-    except Exception as e:
-        write_stderr(f"Unable to create logs directory | {directory} | {get_exception(e)}")
-        raise e
 
     log_file_path = str(os.path.join(directory, filename))
 

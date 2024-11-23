@@ -1,11 +1,13 @@
 # -*- encoding: utf-8 -*-
-import os
 import logging.handlers
+import os
 from .log_utils import (
+    check_directory_permissions,
+    check_filename_instance,
     get_exception,
-    get_format,
     get_level,
     get_log_path,
+    get_logger_and_formatter,
     gzip_file,
     list_files,
     remove_old_logs,
@@ -18,56 +20,40 @@ class SizeRotatingLog:
         self,
         level: str = "info",
         directory: str = "logs",
-        filenames: list | tuple = ("app.log",),
+        filenames: list | tuple = None,
         encoding: str = "UTF-8",
         datefmt: str = "%Y-%m-%dT%H:%M:%S",
         days_to_keep: int = 30,
         max_mbytes: int = 50,
         name: str = None,
+        utc: bool = True,
         stream_handler: bool = True,
         show_location: bool = False,
     ):
         self.level = get_level(level)
         self.directory = directory
-        self.filenames = filenames
+        self.name = "app" if not name else name
+        self.filenames = (f"{self.name}.log",) if not filenames else filenames
         self.encoding = encoding
         self.datefmt = datefmt
         self.days_to_keep = days_to_keep
         self.max_mbytes = max_mbytes
-        self.name = name
+        self.utc = utc
         self.stream_handler = stream_handler
         self.show_location = show_location
 
     def init(self):
-        if not isinstance(self.filenames, list | tuple):
-            write_stderr(
-                "Unable to parse filenames. "
-                "Filenames are not list or tuple. | "
-                f"{self.filenames}"
-            )
-            return
+        check_filename_instance(self.filenames)
+        check_directory_permissions(self.directory)
 
-        formatt = get_format(self.show_location, self.name)
-        formatter = logging.Formatter(formatt, datefmt=self.datefmt)
-
-        if not self.name:
-            self.name = "app"
-
-        logger = logging.getLogger(self.name)
+        logger, formatter = get_logger_and_formatter(self.name,
+                                                     self.datefmt,
+                                                     self.show_location,
+                                                     self.utc)
         logger.setLevel(self.level)
-        for handler in logger.handlers[:]:
-            logger.removeHandler(handler)
 
         for file in self.filenames:
-            try:
-                log_file_path = get_log_path(self.directory, file)
-            except Exception as e:
-                write_stderr(
-                    "Unable to create logs. | "
-                    f"{self.directory} | "
-                    f"{get_exception(e)}"
-                )
-                return
+            log_file_path = get_log_path(self.directory, file)
 
             file_handler = logging.handlers.RotatingFileHandler(
                 filename=log_file_path,
@@ -78,7 +64,10 @@ class SizeRotatingLog:
                 delay=False,
                 errors=None
             )
-            file_handler.rotator = GZipRotatorSize(self.directory, self.days_to_keep)
+            file_handler.rotator = GZipRotatorSize(
+                self.directory,
+                self.days_to_keep
+            )
             file_handler.setFormatter(formatter)
             file_handler.setLevel(self.level)
             logger.addHandler(file_handler)
@@ -102,8 +91,8 @@ class GZipRotatorSize:
         if os.path.isfile(source) and os.stat(source).st_size > 0:
             source_filename, _ = os.path.basename(source).split(".")
             new_file_number = 1
-            previous_gz_files_list = list_files(self.directory, ends_with=".gz")
-            for gz_file in previous_gz_files_list:
+            previous_gz_files = list_files(self.directory, ends_with=".gz")
+            for gz_file in previous_gz_files:
                 if source_filename in gz_file:
                     try:
                         oldest_file_name = gz_file.split(".")[0].split("_")
