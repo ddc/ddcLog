@@ -22,7 +22,9 @@ class BasicLog:
         self.show_location = show_location
 
     def init(self):
-        logging.Formatter.converter = time.gmtime if self.utc else None
+        if self.utc:
+            logging.Formatter.converter = time.gmtime
+
         formatt = get_format(self.show_location, self.name)
         logging.basicConfig(level=self.level,
                             datefmt=self.datefmt,

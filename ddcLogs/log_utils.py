@@ -20,7 +20,8 @@ def get_logger_and_formatter(name: str,
 
     formatt = get_format(show_location, name)
     formatter = logging.Formatter(formatt, datefmt=datefmt)
-    formatter.converter = time.gmtime if utc else None
+    if utc:
+        formatter.converter = time.gmtime
     return logger, formatter
 
 
