@@ -71,9 +71,9 @@ logger = TimedRotatingLog(
 logger.warning("This is a warning example")
 ```
 
-## Example of output
-
+### Example of output
 `[2024-10-08T19:08:56.918]:[WARNING]:[app]:This is a warning example`
+
 
 
 # Source Code
@@ -82,25 +82,24 @@ logger.warning("This is a warning example")
 poetry build -f wheel
 ```
 
+
 ### Publish to test pypi
 ```shell
 poetry publish -r test-pypi
 ```
+
 
 ### Publish to pypi
 ```shell
 poetry publish
 ```
 
-### Run Tests
+
+### Run Tests and Get Coverage Report
 ```shell
-poetry run coverage run -m pytest -v
+poetry run coverage run --omit=./tests/* --source=./ddcLogs -m pytest -v && poetry run coverage report
 ```
 
-### Get Coverage Report
-```shell
-poetry run coverage report
-```
 
 # License
 Released under the [MIT License](LICENSE)
