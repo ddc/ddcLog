@@ -1,31 +1,27 @@
 # -*- encoding: utf-8 -*-
 import logging
 import time
-from dotenv import load_dotenv
 from .log_utils import get_format, get_level
 from .settings import LogSettings
-
-
-load_dotenv()
-settings = LogSettings()
 
 
 class BasicLog:
     def __init__(
         self,
-        level: str = settings.level,
-        name: str =  settings.name,
-        encoding: str = settings.encoding,
-        datefmt: str = settings.date_format,
-        utc: bool = settings.utc,
-        show_location: bool = settings.show_location,
+        level: str = None,
+        name: str =  None,
+        encoding: str = None,
+        datefmt: str = None,
+        utc: bool = None,
+        show_location: bool = None,
     ):
-        self.level = get_level(level)
-        self.name = name
-        self.encoding = encoding
-        self.datefmt = datefmt
-        self.utc = utc
-        self.show_location = show_location
+        _settings = LogSettings()
+        self.level = get_level(_settings.level if not level else level)
+        self.name = _settings.name if not name else name
+        self.encoding = _settings.encoding if not encoding else encoding
+        self.datefmt = _settings.date_format if not datefmt else datefmt
+        self.utc = _settings.utc if not utc else utc
+        self.show_location = _settings.show_location if not show_location else show_location
 
     def init(self):
         if self.utc:

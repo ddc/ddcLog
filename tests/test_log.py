@@ -9,7 +9,7 @@ from ddcLogs.log_utils import delete_file
 class TestLogs:
     @classmethod
     def setup_class(cls):
-        cls.level = "debug"
+        cls.level = "info"
         cls.directory = tempfile.gettempdir()
         cls.filenames = ("test1.log", "test2.log")
 
@@ -22,7 +22,7 @@ class TestLogs:
 
     def test_basic_log(self, caplog):
         log = BasicLog(level=self.level).init()
-        log.debug("test_basic_log")
+        log.info("test_basic_log")
         assert "test_basic_log" in caplog.text
 
     def test_size_rotating_log(self, caplog):
@@ -39,7 +39,7 @@ class TestLogs:
                               filenames=self.filenames,
                               max_mbytes=max_mbytes).init()
 
-        log.debug("test_size_rotating_log")
+        log.info("test_size_rotating_log")
         assert "test_size_rotating_log" in caplog.text
 
         # delete test.gz files
@@ -59,7 +59,7 @@ class TestLogs:
             level=self.level,
             filenames=self.filenames
         ).init()
-        log.debug("start_test_timed_rotating_log")
+        log.info("start_test_timed_rotating_log")
         assert "start_test_timed_rotating_log" in caplog.text
 
         # change files datetime
@@ -73,7 +73,7 @@ class TestLogs:
             level=self.level,
             filenames=self.filenames
         ).init()
-        log.debug("end_test_timed_rotating_log")
+        log.info("end_test_timed_rotating_log")
         assert "end_test_timed_rotating_log" in caplog.text
 
         # delete test.gz files

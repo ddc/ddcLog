@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 import logging.handlers
 import os
-from dotenv import load_dotenv
 from .log_utils import (
     check_directory_permissions,
     check_filename_instance,
@@ -18,36 +17,34 @@ from .log_utils import (
 from .settings import LogSettings
 
 
-load_dotenv()
-settings = LogSettings()
-
-
 class SizeRotatingLog:
     def __init__(
         self,
-        level: str = settings.level,
-        name: str = settings.name,
-        directory: str = settings.directory,
-        filenames: list | tuple = (settings.filename,),
-        encoding: str = settings.encoding,
-        datefmt: str = settings.date_format,
-        days_to_keep: int = int(settings.days_to_keep),
-        utc: bool = settings.utc,
-        stream_handler: bool = settings.stream_handler,
-        show_location: bool = settings.show_location,
-        max_mbytes: int = int(settings.max_file_size_mb),
+        level: str = None,
+        name: str = None,
+        directory: str = None,
+        filenames: list | tuple = None,
+        encoding: str = None,
+        datefmt: str = None,
+        days_to_keep: int = None,
+        utc: bool = None,
+        stream_handler: bool = None,
+        show_location: bool = None,
+        max_mbytes: int = None,
+
     ):
-        self.level = get_level(level)
-        self.name = name
-        self.directory = directory
-        self.filenames = filenames
-        self.encoding = encoding
-        self.datefmt = datefmt
-        self.days_to_keep = days_to_keep
-        self.utc = utc
-        self.stream_handler = stream_handler
-        self.show_location = show_location
-        self.max_mbytes = max_mbytes
+        _settings = LogSettings()
+        self.level = get_level(_settings.level if not level else level)
+        self.name = _settings.name if not name else name
+        self.directory = _settings.directory if not directory else directory
+        self.filenames = (_settings.filename,) if not filenames else filenames
+        self.encoding = _settings.encoding if not encoding else encoding
+        self.datefmt = _settings.date_format if not datefmt else datefmt
+        self.days_to_keep = int(_settings.days_to_keep) if not days_to_keep else int(days_to_keep)
+        self.utc = _settings.utc if not utc else utc
+        self.stream_handler = _settings.stream_handler if not stream_handler else stream_handler
+        self.show_location = _settings.show_location if not show_location else show_location
+        self.max_mbytes = int(_settings.max_file_size_mb) if not max_mbytes else int(max_mbytes)
 
     def init(self):
         check_filename_instance(self.filenames)
@@ -82,6 +79,10 @@ class SizeRotatingLog:
         if self.stream_handler:
             stream_hdlr = get_stream_handler(self.level, formatter)
             logger.addHandler(stream_hdlr)
+
+        # supress logging from azure libraries (noisy)
+        logging.getLogger("azure.eventhub").setLevel(logging.WARNING)
+        logging.getLogger("azure.core").setLevel(logging.WARNING)
 
         return logger
 
