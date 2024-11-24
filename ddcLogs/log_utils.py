@@ -59,7 +59,7 @@ def check_directory_permissions(directory_path: str) -> None:
             os.makedirs(directory_path, mode=0o755, exist_ok=True)
     except OSError as e:
         err_msg = f"Unable to create directory | {directory_path}"
-        write_stderr(f"{err_msg} | {get_exception(e)}")
+        write_stderr(f"{err_msg} | {repr(e)}")
         raise e
 
 
@@ -73,7 +73,7 @@ def remove_old_logs(logs_dir: str, days_to_keep: int) -> None:
             write_stderr(
                 f"Unable to delete passed {days_to_keep} days logs | "
                 f"{file} | "
-                f"{get_exception(e)}"
+                f"{repr(e)}"
             )
 
 
@@ -93,7 +93,7 @@ def list_files(directory: str, ends_with: str) -> tuple:
             result.sort(key=os.path.getmtime)
         return tuple(result)
     except Exception as e:
-        write_stderr(get_exception(e))
+        write_stderr(repr(e))
         raise e
 
 
@@ -111,7 +111,7 @@ def delete_file(path: str) -> bool:
         else:
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), path)
     except OSError as e:
-        write_stderr(get_exception(e))
+        write_stderr(repr(e))
         raise e
     return True
 
@@ -133,7 +133,7 @@ def is_older_than_x_days(path: str, days: int) -> bool:
         else:
             cutoff_time = datetime.today() - timedelta(days=int(days))
     except ValueError as e:
-        write_stderr(get_exception(e))
+        write_stderr(repr(e))
         raise e
 
     file_timestamp = os.stat(path).st_mtime
@@ -142,21 +142,6 @@ def is_older_than_x_days(path: str, days: int) -> bool:
     if file_time < cutoff_time:
         return True
     return False
-
-
-def get_exception(e) -> str:
-    """
-    Get exception
-    :param e: exception string
-    :return: str
-    """
-
-    module = e.__class__.__module__
-    if module is None or module == str.__class__.__module__:
-        module_and_exception = f"[{e.__class__.__name__}]:[{e}]"
-    else:
-        module_and_exception = f"[{module}.{e.__class__.__name__}]:[{e}]"
-    return module_and_exception.replace("\r\n", " ").replace("\n", " ")
 
 
 def write_stderr(msg: str) -> None:
@@ -221,14 +206,14 @@ def get_log_path(directory: str, filename: str) -> str:
     try:
         open(log_file_path, "a+").close()
     except IOError as e:
-        write_stderr(f"Unable to open log file for writing | {log_file_path} | {get_exception(e)}")
+        write_stderr(f"Unable to open log file for writing | {log_file_path} | {repr(e)}")
         raise e
 
     # try:
     #     if os.path.isfile(log_file_path):
     #         os.chmod(log_file_path , 0o755)
     # except OSError as e:
-    #     write_stderr(f"Unable to set log file permissions | {get_exception(e)} | {log_file_path}")
+    #     write_stderr(f"Unable to set log file permissions | {repr(e)} | {log_file_path}")
     #     raise e
 
     return log_file_path
@@ -265,18 +250,18 @@ def gzip_file(source, output_partial_name) -> gzip:
                 with gzip.open(renamed_dst, "wb") as fout:
                     fout.writelines(fin)
         except Exception as e:
-            write_stderr(f"Unable to zip log file | {source} | {get_exception(e)}")
+            write_stderr(f"Unable to zip log file | {source} | {repr(e)}")
             raise e
 
         # try:
         #     if os.path.isfile(renamed_dst):
         #         os.chmod(renamed_dst , 0o755)
         # except OSError as e:
-        #     write_stderr(f"Unable to set log file permissions | {get_exception(e)} | {renamed_dst}")
+        #     write_stderr(f"Unable to set log file permissions | {repr(e)} | {renamed_dst}")
         #     raise e
 
         try:
             delete_file(source)
         except OSError as e:
-            write_stderr(f"Unable to delete_file old source log file | {source} | {get_exception(e)}")
+            write_stderr(f"Unable to delete_file old source log file | {source} | {repr(e)}")
             raise e

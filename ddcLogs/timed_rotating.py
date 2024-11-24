@@ -78,10 +78,6 @@ class TimedRotatingLog:
             stream_hdlr = get_stream_handler(self.level, formatter)
             logger.addHandler(stream_hdlr)
 
-        # supress logging from azure libraries (noisy)
-        logging.getLogger("azure.eventhub").setLevel(logging.WARNING)
-        logging.getLogger("azure.core").setLevel(logging.WARNING)
-
         return logger
 
 

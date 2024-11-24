@@ -4,7 +4,6 @@ import os
 from .log_utils import (
     check_directory_permissions,
     check_filename_instance,
-    get_exception,
     get_level,
     get_log_path,
     get_logger_and_formatter,
@@ -80,10 +79,6 @@ class SizeRotatingLog:
             stream_hdlr = get_stream_handler(self.level, formatter)
             logger.addHandler(stream_hdlr)
 
-        # supress logging from azure libraries (noisy)
-        logging.getLogger("azure.eventhub").setLevel(logging.WARNING)
-        logging.getLogger("azure.core").setLevel(logging.WARNING)
-
         return logger
 
 
@@ -96,21 +91,26 @@ class GZipRotatorSize:
         remove_old_logs(self.directory, self.days_to_keep)
         if os.path.isfile(source) and os.stat(source).st_size > 0:
             source_filename, _ = os.path.basename(source).split(".")
-            new_file_number = 1
-            previous_gz_files = list_files(self.directory, ends_with=".gz")
-            for gz_file in previous_gz_files:
-                if source_filename in gz_file:
-                    try:
-                        oldest_file_name = gz_file.split(".")[0].split("_")
-                        if len(oldest_file_name) > 1:
-                            new_file_number = int(oldest_file_name[1]) + 1
-                    except ValueError as e:
-                        write_stderr(
-                            "Unable to get previous gz log file number | "
-                            f"{gz_file} | "
-                            f"{get_exception(e)}"
-                        )
-                        raise
-
+            new_file_number = self._get_new_file_number(self.directory, source_filename)
             if os.path.isfile(source):
                 gzip_file(source, new_file_number)
+
+
+    @staticmethod
+    def _get_new_file_number(directory, source_filename):
+        new_file_number = 1
+        previous_gz_files = list_files(directory, ends_with=".gz")
+        for gz_file in previous_gz_files:
+            if source_filename in gz_file:
+                try:
+                    oldest_file_name = gz_file.split(".")[0].split("_")
+                    if len(oldest_file_name) > 1:
+                        new_file_number = int(oldest_file_name[1]) + 1
+                except ValueError as e:
+                    write_stderr(
+                        "Unable to get previous gz log file number | "
+                        f"{gz_file} | "
+                        f"{repr(e)}"
+                    )
+                    raise
+        return new_file_number
