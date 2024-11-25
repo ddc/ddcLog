@@ -4,8 +4,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "ddcLogs"
-version = "2.0.14"
-description = "Custom log with rotations"
+version = "2.0.15"
+description = "Easy logs with rotations"
 license = "MIT"
 readme = "README.md"
 authors = ["Daniel Costa <danieldcsta@gmail.com>"]
@@ -14,7 +14,7 @@ repository = "https://github.com/ddc/ddcLogs"
 homepage = "https://github.com/ddc/ddcLogs"
 packages = [{include = "ddcLogs"}]
 package-mode = true
-keywords = ["python3", "log", "log-utils", "ddcLogs"]
+keywords = ["python3", "log", "log-utils", "log_utils", "logger", "ddcLogs"]
 classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Development Status :: 5 - Production/Stable",
@@ -26,6 +26,9 @@ classifiers = [
     "Natural Language :: English",
 ]
 
+[tool.poetry.group.test]
+optional = true
+
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
 pydantic-settings = ">=2.6.1"
@@ -33,4 +36,4 @@ python-dotenv = ">=1.0.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=8.3.3"
-coverage = ">=7.6.7"
+coverage = ">=7.6.8"
