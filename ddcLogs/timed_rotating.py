@@ -24,7 +24,7 @@ class TimedRotatingLog:
         filenames: Optional[list | tuple] = None,
         encoding: Optional[str] = None,
         datefmt: Optional[str] = None,
-        days_to_keep: int = None,
+        days_to_keep: Optional[int] = None,
         utc: Optional[bool] = None,
         stream_handler: Optional[bool] = None,
         show_location: Optional[bool] = None,
