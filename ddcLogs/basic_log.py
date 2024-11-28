@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 import logging
 import time
+from typing import Optional
 from .log_utils import get_format, get_level
 from .settings import LogSettings
 
@@ -8,20 +9,20 @@ from .settings import LogSettings
 class BasicLog:
     def __init__(
         self,
-        level: str = None,
-        name: str =  None,
-        encoding: str = None,
-        datefmt: str = None,
-        utc: bool = None,
-        show_location: bool = None,
+        level: Optional[str] = None,
+        name: Optional[str] =  None,
+        encoding: Optional[str] = None,
+        datefmt: Optional[str] = None,
+        utc: Optional[bool] = None,
+        show_location: Optional[bool] = None,
     ):
         _settings = LogSettings()
-        self.level = get_level(_settings.level if not level else level)
-        self.name = _settings.name if not name else name
-        self.encoding = _settings.encoding if not encoding else encoding
-        self.datefmt = _settings.date_format if not datefmt else datefmt
-        self.utc = _settings.utc if not utc else utc
-        self.show_location = _settings.show_location if not show_location else show_location
+        self.level = get_level(level or _settings.level)
+        self.name = name or _settings.name
+        self.encoding = encoding or _settings.encoding
+        self.datefmt = datefmt or _settings.date_format
+        self.utc = utc or _settings.utc
+        self.show_location = show_location or _settings.show_location
 
     def init(self):
         if self.utc:

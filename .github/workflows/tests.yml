@@ -8,7 +8,7 @@ on:
       - "!main"
 
 jobs:
-  test-all:
+  test_all:
     runs-on: ubuntu-latest
     strategy:
       matrix:
