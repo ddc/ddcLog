@@ -19,7 +19,7 @@ pip install ddcLogs
 from ddcLogs import BasicLog
 logger = BasicLog(
     level="info",
-    name = "app",
+    app_name = "app",
     utc = True,
     show_location = False, # This will show the filename and the line number where the message originated
 ).init()
@@ -39,7 +39,7 @@ logger = SizeRotatingLog(
     filenames = ["app.log", "app1.log"],
     days_to_keep = 7,
     max_mbytes = 5,
-    name = "app",
+    app_name = "app",
     utc = True,
     stream_handler = True, # Add stream handler along with file handler
     show_location = False # This will show the filename and the line number where the message originated
@@ -63,7 +63,7 @@ logger = TimedRotatingLog(
     filenames = ["app.log", "app1.log"],
     days_to_keep = 7,
     when = "midnight",
-    name = "app",
+    app_name = "app",
     utc = True,
     stream_handler = True, # Add stream handler along with file handler
     show_location = False # This will show the filename and the line number where the message originated
@@ -83,9 +83,9 @@ poetry build -f wheel
 ```
 
 
-### Run Tests and Get Coverage Report
+# Run Tests and Get Coverage Report using Poe
 ```shell
-poetry run coverage run --omit=./tests/* --source=./ddcLogs -m pytest -v && poetry run coverage report
+poe tests
 ```
 
 
@@ -93,7 +93,8 @@ poetry run coverage run --omit=./tests/* --source=./ddcLogs -m pytest -v && poet
 Released under the [MIT License](LICENSE)
 
 
-## Buy me a cup of coffee
+
+# Buy me a cup of coffee
 + [GitHub Sponsor](https://github.com/sponsors/ddc)
 + [ko-fi](https://ko-fi.com/ddcsta)
 + [Paypal](https://www.paypal.com/ncp/payment/6G9Z78QHUD4RJ)
