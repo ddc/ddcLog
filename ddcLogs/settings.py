@@ -7,7 +7,7 @@ from typing import Optional
 
 
 class LogLevel(str, Enum):
-    """log levels"""
+    """ log levels """
 
     CRITICAL = "CRITICAL"
     CRIT = "CRIT"
@@ -19,21 +19,16 @@ class LogLevel(str, Enum):
 
 
 class LogSettings(BaseSettings):
-    """
-    settings defined here with fallback to reading ENV variables
-    Current 'rotating_when' events supported for TimedRotatingLogs:
-        midnight - roll over at midnight
-        W{0-6} - roll over on a certain day; 0 - Monday
-    """
+    """ settings defined here with fallback to reading ENV variables """
     load_dotenv()
 
     level: Optional[LogLevel] = Field(default=LogLevel.INFO)
-    app_name: Optional[str] = Field(default="app")
+    appname: Optional[str] = Field(default="app")
     directory: Optional[str] = Field(default="/app/logs")
     filename: Optional[str] = Field(default="app.log")
     encoding: Optional[str] = Field(default="UTF-8")
     date_format: Optional[str] = Field(default="%Y-%m-%dT%H:%M:%S")
-    days_to_keep: Optional[int] = Field(default=14)
+    days_to_keep: Optional[int] = Field(default=30)
     utc: Optional[bool] = Field(default=True)
     stream_handler: Optional[bool] = Field(default=True) # Add stream handler along with file handler
     show_location: Optional[bool] = Field(default=False) # This will show the filename and the line number where the message originated

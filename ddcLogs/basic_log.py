@@ -10,29 +10,29 @@ class BasicLog:
     def __init__(
         self,
         level: Optional[str] = None,
-        app_name: Optional[str] =  None,
+        appname: Optional[str] =  None,
         encoding: Optional[str] = None,
         datefmt: Optional[str] = None,
         utc: Optional[bool] = None,
-        show_location: Optional[bool] = None,
+        showlocation: Optional[bool] = None,
     ):
         _settings = LogSettings()
         self.level = get_level(level or _settings.level)
-        self.app_name = app_name or _settings.app_name
+        self.appname = appname or _settings.appname
         self.encoding = encoding or _settings.encoding
         self.datefmt = datefmt or _settings.date_format
         self.utc = utc or _settings.utc
-        self.show_location = show_location or _settings.show_location
+        self.showlocation = showlocation or _settings.show_location
 
     def init(self):
         if self.utc:
             logging.Formatter.converter = time.gmtime
 
-        formatt = get_format(self.show_location, self.app_name)
+        formatt = get_format(self.showlocation, self.appname)
         logging.basicConfig(level=self.level,
                             datefmt=self.datefmt,
                             encoding=self.encoding,
                             format=formatt)
-        logger = logging.getLogger(self.app_name)
+        logger = logging.getLogger(self.appname)
         logger.setLevel(self.level)
         return logger

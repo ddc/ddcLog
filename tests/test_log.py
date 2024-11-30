@@ -37,7 +37,7 @@ class TestLogs:
         log = SizeRotatingLog(directory=self.directory,
                               level=self.level,
                               filenames=self.filenames,
-                              max_mbytes=max_mbytes).init()
+                              maxmbytes=max_mbytes).init()
 
         log.info("test_size_rotating_log")
         assert "test_size_rotating_log" in caplog.text

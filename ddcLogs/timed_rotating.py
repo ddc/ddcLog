@@ -16,43 +16,48 @@ from .settings import LogSettings
 
 
 class TimedRotatingLog:
+    """
+    Current 'rotating_when' events supported for TimedRotatingLogs:
+        midnight - roll over at midnight
+        W{0-6} - roll over on a certain day; 0 - Monday
+    """
+
     def __init__(
         self,
         level: Optional[str] = None,
-        app_name: Optional[str] = None,
+        appname: Optional[str] = None,
         directory: Optional[str] = None,
         filenames: Optional[list | tuple] = None,
+        when: Optional[str] = None,
+        sufix: Optional[str] =  None,
+        daystokeep: Optional[int] = None,
         encoding: Optional[str] = None,
         datefmt: Optional[str] = None,
-        days_to_keep: Optional[int] = None,
         utc: Optional[bool] = None,
-        stream_handler: Optional[bool] = None,
-        show_location: Optional[bool] = None,
-        sufix: Optional[str] =  None,
-        when: Optional[str] = None,
-
+        streamhandler: Optional[bool] = None,
+        showlocation: Optional[bool] = None,
     ):
         _settings = LogSettings()
         self.level = get_level(level or _settings.level)
-        self.app_name = app_name or _settings.app_name
+        self.appname = appname or _settings.appname
         self.directory = directory or _settings.directory
         self.filenames = filenames or (_settings.filename,)
+        self.when = when or _settings.rotating_when
+        self.sufix = sufix or _settings.rotating_file_sufix
+        self.daystokeep = daystokeep or _settings.days_to_keep
         self.encoding = encoding or _settings.encoding
         self.datefmt = datefmt or _settings.date_format
-        self.days_to_keep = days_to_keep or _settings.days_to_keep
         self.utc = utc or _settings.utc
-        self.stream_handler = stream_handler or _settings.stream_handler
-        self.show_location = show_location or _settings.show_location
-        self.sufix = sufix or _settings.rotating_file_sufix
-        self.when = when or _settings.rotating_when
+        self.streamhandler = streamhandler or _settings.stream_handler
+        self.showlocation = showlocation or _settings.show_location
 
     def init(self):
         check_filename_instance(self.filenames)
         check_directory_permissions(self.directory)
 
-        logger, formatter = get_logger_and_formatter(self.app_name,
+        logger, formatter = get_logger_and_formatter(self.appname,
                                                      self.datefmt,
-                                                     self.show_location,
+                                                     self.showlocation,
                                                      self.utc)
         logger.setLevel(self.level)
 
@@ -64,18 +69,18 @@ class TimedRotatingLog:
                 encoding=self.encoding,
                 when=self.when,
                 utc=self.utc,
-                backupCount=self.days_to_keep
+                backupCount=self.daystokeep
             )
             file_handler.suffix = self.sufix
             file_handler.rotator = GZipRotatorTimed(
                 self.directory,
-                self.days_to_keep
+                self.daystokeep
             )
             file_handler.setFormatter(formatter)
             file_handler.setLevel(self.level)
             logger.addHandler(file_handler)
 
-        if self.stream_handler:
+        if self.streamhandler:
             stream_hdlr = get_stream_handler(self.level, formatter)
             logger.addHandler(stream_hdlr)
 

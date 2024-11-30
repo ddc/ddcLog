@@ -19,38 +19,38 @@ class SizeRotatingLog:
     def __init__(
         self,
         level: Optional[str] = None,
-        app_name: Optional[str] = None,
+        appname: Optional[str] = None,
         directory: Optional[str] = None,
         filenames: Optional[list | tuple] = None,
+        maxmbytes: Optional[int] = None,
+        daystokeep: Optional[int] = None,
         encoding: Optional[str] = None,
         datefmt: Optional[str] = None,
-        days_to_keep: Optional[int] = None,
         utc: Optional[bool] = None,
-        stream_handler: Optional[bool] = None,
-        show_location: Optional[bool] = None,
-        max_mbytes: Optional[int] = None,
-
+        streamhandler: Optional[bool] = None,
+        showlocation: Optional[bool] = None,
     ):
         _settings = LogSettings()
         self.level = get_level(level or _settings.level)
-        self.app_name = app_name or _settings.app_name
+        self.appname = appname or _settings.appname
         self.directory = directory or _settings.directory
         self.filenames = filenames or (_settings.filename,)
+        self.maxmbytes = maxmbytes or _settings.max_file_size_mb
+        self.daystokeep = daystokeep or _settings.days_to_keep
         self.encoding = encoding or _settings.encoding
         self.datefmt = datefmt or _settings.date_format
-        self.days_to_keep = days_to_keep or _settings.days_to_keep
         self.utc = utc or _settings.utc
-        self.stream_handler = stream_handler or _settings.stream_handler
-        self.show_location = show_location or _settings.show_location
-        self.max_mbytes = max_mbytes or _settings.max_file_size_mb
+        self.streamhandler = streamhandler or _settings.stream_handler
+        self.showlocation = showlocation or _settings.show_location
+
 
     def init(self):
         check_filename_instance(self.filenames)
         check_directory_permissions(self.directory)
 
-        logger, formatter = get_logger_and_formatter(self.app_name,
+        logger, formatter = get_logger_and_formatter(self.appname,
                                                      self.datefmt,
-                                                     self.show_location,
+                                                     self.showlocation,
                                                      self.utc)
         logger.setLevel(self.level)
 
@@ -60,21 +60,21 @@ class SizeRotatingLog:
             file_handler = logging.handlers.RotatingFileHandler(
                 filename=log_file_path,
                 mode="a",
-                maxBytes=self.max_mbytes * 1024 * 1024,
-                backupCount=self.days_to_keep,
+                maxBytes=self.maxmbytes * 1024 * 1024,
+                backupCount=self.daystokeep,
                 encoding=self.encoding,
                 delay=False,
                 errors=None
             )
             file_handler.rotator = GZipRotatorSize(
                 self.directory,
-                self.days_to_keep
+                self.daystokeep
             )
             file_handler.setFormatter(formatter)
             file_handler.setLevel(self.level)
             logger.addHandler(file_handler)
 
-        if self.stream_handler:
+        if self.streamhandler:
             stream_hdlr = get_stream_handler(self.level, formatter)
             logger.addHandler(stream_hdlr)
 
@@ -82,12 +82,12 @@ class SizeRotatingLog:
 
 
 class GZipRotatorSize:
-    def __init__(self, dir_logs: str, days_to_keep: int):
+    def __init__(self, dir_logs: str, daystokeep: int):
         self.directory = dir_logs
-        self.days_to_keep = days_to_keep
+        self.daystokeep = daystokeep
 
     def __call__(self, source: str, dest: str) -> None:
-        remove_old_logs(self.directory, self.days_to_keep)
+        remove_old_logs(self.directory, self.daystokeep)
         if os.path.isfile(source) and os.stat(source).st_size > 0:
             source_filename, _ = os.path.basename(source).split(".")
             new_file_number = self._get_new_file_number(self.directory, source_filename)
