@@ -30,6 +30,10 @@ jobs:
         run: |  
           python -m poetry update --with test
 
-      - name: Run tests and Get Coverage Report
+      - name: Run tests
         run: |  
-          python -m poe test
+          python -m poetry run coverage run --omit=./tests/* --source=./ddcLogs -m pytest -v
+
+      - name: Generate Coverage Report
+        run: |  
+          python -m poetry run coverage report
