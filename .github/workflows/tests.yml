@@ -32,4 +32,4 @@ jobs:
 
       - name: Run tests and Get Coverage Report
         run: |  
-          poe test
+          python -m poe test
