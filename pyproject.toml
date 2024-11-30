@@ -4,17 +4,21 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "ddcLogs"
-version = "2.0.18"
+version = "2.0.19"
 description = "Easy logs with rotations"
 license = "MIT"
 readme = "README.md"
 authors = ["Daniel Costa <danieldcsta@gmail.com>"]
 maintainers = ["Daniel Costa"]
 repository = "https://github.com/ddc/ddcLogs"
-homepage = "https://github.com/ddc/ddcLogs"
+homepage = "https://pypi.org/project/ddcLogs"
 packages = [{include = "ddcLogs"}]
 package-mode = true
-keywords = ["python3", "log", "log-utils", "log_utils", "logger", "ddcLogs"]
+keywords = [
+    "python3", "python-3", "python",
+    "log", "logging", "logger",
+    "logutils", "log-utils", "ddcLogs"
+]
 classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Development Status :: 5 - Production/Stable",

@@ -1,10 +1,10 @@
 # Log Functions
 
-[![License](https://img.shields.io/github/license/ddc/ddcLogs.svg?style=plastic)](https://github.com/ddc/ddcLogs/blob/master/LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg?style=plastic)](https://www.python.org)
-[![PyPi](https://img.shields.io/pypi/v/ddcLogs.svg?style=plastic)](https://pypi.python.org/pypi/ddcLogs)
+[![License](https://img.shields.io/github/license/ddc/ddcLogs.svg)](https://github.com/ddc/ddcLogs/blob/master/LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org)
+[![PyPi](https://img.shields.io/pypi/v/ddcLogs.svg)](https://pypi.python.org/pypi/ddcLogs)
+[![PyPI Downloads](https://static.pepy.tech/badge/ddcLogs)](https://pepy.tech/projects/ddclogs)
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A//actions-badge.atrox.dev/ddc/ddcLogs/badge?ref=main&style=plastic&label=build&logo=none)](https://actions-badge.atrox.dev/ddc/ddcLogs/goto?ref=main)
-
 
 # Install
 ```shell
@@ -83,18 +83,6 @@ poetry build -f wheel
 ```
 
 
-### Publish to test pypi
-```shell
-poetry publish -r test-pypi
-```
-
-
-### Publish to pypi
-```shell
-poetry publish
-```
-
-
 ### Run Tests and Get Coverage Report
 ```shell
 poetry run coverage run --omit=./tests/* --source=./ddcLogs -m pytest -v && poetry run coverage report
@@ -103,3 +91,9 @@ poetry run coverage run --omit=./tests/* --source=./ddcLogs -m pytest -v && poet
 
 # License
 Released under the [MIT License](LICENSE)
+
+
+## Buy me a cup of coffee
++ [GitHub Sponsor](https://github.com/sponsors/ddc)
++ [ko-fi](https://ko-fi.com/ddcsta)
++ [Paypal](https://www.paypal.com/ncp/payment/6G9Z78QHUD4RJ)
