@@ -19,7 +19,7 @@ class SizeRotatingLog:
     def __init__(
         self,
         level: Optional[str] = None,
-        name: Optional[str] = None,
+        app_name: Optional[str] = None,
         directory: Optional[str] = None,
         filenames: Optional[list | tuple] = None,
         encoding: Optional[str] = None,
@@ -33,7 +33,7 @@ class SizeRotatingLog:
     ):
         _settings = LogSettings()
         self.level = get_level(level or _settings.level)
-        self.name = name or _settings.name
+        self.app_name = app_name or _settings.app_name
         self.directory = directory or _settings.directory
         self.filenames = filenames or (_settings.filename,)
         self.encoding = encoding or _settings.encoding
@@ -48,7 +48,7 @@ class SizeRotatingLog:
         check_filename_instance(self.filenames)
         check_directory_permissions(self.directory)
 
-        logger, formatter = get_logger_and_formatter(self.name,
+        logger, formatter = get_logger_and_formatter(self.app_name,
                                                      self.datefmt,
                                                      self.show_location,
                                                      self.utc)

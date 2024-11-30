@@ -28,7 +28,7 @@ class LogSettings(BaseSettings):
     load_dotenv()
 
     level: Optional[LogLevel] = Field(default=LogLevel.INFO)
-    name: Optional[str] = Field(default="app")
+    app_name: Optional[str] = Field(default="app")
     directory: Optional[str] = Field(default="/app/logs")
     filename: Optional[str] = Field(default="app.log")
     encoding: Optional[str] = Field(default="UTF-8")
