@@ -57,9 +57,7 @@ class TimedRotatingLog:
         check_filename_instance(self.filenames)
         check_directory_permissions(self.directory)
 
-        logger, formatter = get_logger_and_formatter(
-            self.appname, self.datefmt, self.showlocation, self.timezone
-        )
+        logger, formatter = get_logger_and_formatter(self.appname, self.datefmt, self.showlocation, self.timezone)
         logger.setLevel(self.level)
 
         for file in self.filenames:

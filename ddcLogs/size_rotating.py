@@ -49,9 +49,7 @@ class SizeRotatingLog:
         check_filename_instance(self.filenames)
         check_directory_permissions(self.directory)
 
-        logger, formatter = get_logger_and_formatter(
-            self.appname, self.datefmt, self.showlocation, self.timezone
-        )
+        logger, formatter = get_logger_and_formatter(self.appname, self.datefmt, self.showlocation, self.timezone)
         logger.setLevel(self.level)
 
         for file in self.filenames:
@@ -102,10 +100,6 @@ class GZipRotatorSize:
                     if len(oldest_file_name) > 1:
                         new_file_number = int(oldest_file_name[1]) + 1
                 except ValueError as e:
-                    write_stderr(
-                        "Unable to get previous gz log file number | "
-                        f"{gz_file} | "
-                        f"{repr(e)}"
-                    )
+                    write_stderr(f"Unable to get previous gz log file number | {gz_file} | {repr(e)}")
                     raise
         return new_file_number
