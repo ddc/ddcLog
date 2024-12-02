@@ -25,11 +25,11 @@ class TimedRotatingLog:
     def __init__(
         self,
         level: Optional[str] = None,
-        appname: Optional[str] = None,
+        name: Optional[str] = None,
         directory: Optional[str] = None,
         filenames: Optional[list | tuple] = None,
         when: Optional[str] = None,
-        sufix: Optional[str] =  None,
+        sufix: Optional[str] = None,
         daystokeep: Optional[int] = None,
         encoding: Optional[str] = None,
         datefmt: Optional[str] = None,
@@ -40,7 +40,7 @@ class TimedRotatingLog:
     ):
         _settings = LogSettings()
         self.level = get_level(level or _settings.level)
-        self.appname = appname or _settings.appname
+        self.appname = name or _settings.appname
         self.directory = directory or _settings.directory
         self.filenames = filenames or (_settings.filename,)
         self.when = when or _settings.rotate_when
@@ -57,10 +57,9 @@ class TimedRotatingLog:
         check_filename_instance(self.filenames)
         check_directory_permissions(self.directory)
 
-        logger, formatter = get_logger_and_formatter(self.appname,
-                                                     self.datefmt,
-                                                     self.showlocation,
-                                                     self.timezone)
+        logger, formatter = get_logger_and_formatter(
+            self.appname, self.datefmt, self.showlocation, self.timezone
+        )
         logger.setLevel(self.level)
 
         for file in self.filenames:
@@ -71,13 +70,10 @@ class TimedRotatingLog:
                 encoding=self.encoding,
                 when=self.when,
                 utc=self.rotateatutc,
-                backupCount=self.daystokeep
+                backupCount=self.daystokeep,
             )
             file_handler.suffix = self.sufix
-            file_handler.rotator = GZipRotatorTimed(
-                self.directory,
-                self.daystokeep
-            )
+            file_handler.rotator = GZipRotatorTimed(self.directory, self.daystokeep)
             file_handler.setFormatter(formatter)
             file_handler.setLevel(self.level)
             logger.addHandler(file_handler)
@@ -87,6 +83,7 @@ class TimedRotatingLog:
             logger.addHandler(stream_hdlr)
 
         return logger
+
 
 class GZipRotatorTimed:
     def __init__(self, dir_logs: str, days_to_keep: int):

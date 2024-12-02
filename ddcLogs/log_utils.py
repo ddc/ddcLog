@@ -25,13 +25,14 @@ def get_stream_handler(
 
 def get_logger_and_formatter(
     name: str,
-     datefmt: str,
-     show_location: bool,
-     timezone: str,
+    datefmt: str,
+    show_location: bool,
+    timezone: str,
 ) -> [logging.Logger, logging.Formatter]:
 
     logger = logging.getLogger(name)
     for handler in logger.handlers[:]:
+        handler.close()
         logger.removeHandler(handler)
 
     formatt = get_format(show_location, name, timezone)
@@ -52,7 +53,9 @@ def check_filename_instance(filenames: list | tuple) -> None:
 
 
 def check_directory_permissions(directory_path: str) -> None:
-    if os.path.isdir(directory_path) and not os.access(directory_path, os.R_OK | os.W_OK | os.X_OK):
+    if os.path.isdir(directory_path) and not os.access(
+        directory_path, os.R_OK | os.W_OK | os.X_OK
+    ):
         write_stderr(f"Unable to access directory | {directory_path}")
         raise OSError(errno.EACCES)
 
@@ -91,8 +94,11 @@ def list_files(directory: str, ends_with: str) -> tuple:
     try:
         result: list = []
         if os.path.isdir(directory):
-            result: list = [os.path.join(directory, f) for f in os.listdir(directory) if
-                            f.lower().endswith(ends_with)]
+            result: list = [
+                os.path.join(directory, f)
+                for f in os.listdir(directory)
+                if f.lower().endswith(ends_with)
+            ]
             result.sort(key=os.path.getmtime)
         return tuple(result)
     except Exception as e:
@@ -180,7 +186,8 @@ def get_level(level: str) -> logging:
         write_stderr(
             "Unable to get log level. "
             "Setting default level to: 'INFO' "
-            f"({logging.INFO})")
+            f"({logging.INFO})"
+        )
         return logging.INFO
 
     match level.lower():
@@ -209,7 +216,9 @@ def get_log_path(directory: str, filename: str) -> str:
     try:
         open(log_file_path, "a+").close()
     except IOError as e:
-        write_stderr(f"Unable to open log file for writing | {log_file_path} | {repr(e)}")
+        write_stderr(
+            f"Unable to open log file for writing | {log_file_path} | {repr(e)}"
+        )
         raise e
 
     # try:
@@ -271,12 +280,15 @@ def gzip_file(source, output_partial_name) -> gzip:
         try:
             delete_file(source)
         except OSError as e:
-            write_stderr(f"Unable to delete_file old source log file | {source} | {repr(e)}")
+            write_stderr(
+                f"Unable to delete_file old source log file | {source} | {repr(e)}"
+            )
             raise e
 
 
-def get_timezone(time_zone: str) -> (Callable[[float | None, Any], struct_time] |
-                                     Callable[[Any], struct_time]):
+def get_timezone(
+    time_zone: str,
+) -> Callable[[float | None, Any], struct_time] | Callable[[Any], struct_time]:
 
     match time_zone.lower():
         case "utc":
