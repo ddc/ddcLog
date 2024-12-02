@@ -25,13 +25,14 @@ def get_stream_handler(
 
 def get_logger_and_formatter(
     name: str,
-     datefmt: str,
-     show_location: bool,
-     timezone: str,
+    datefmt: str,
+    show_location: bool,
+    timezone: str,
 ) -> [logging.Logger, logging.Formatter]:
 
     logger = logging.getLogger(name)
     for handler in logger.handlers[:]:
+        handler.close()
         logger.removeHandler(handler)
 
     formatt = get_format(show_location, name, timezone)
@@ -42,11 +43,7 @@ def get_logger_and_formatter(
 
 def check_filename_instance(filenames: list | tuple) -> None:
     if not isinstance(filenames, list | tuple):
-        err_msg = (
-            "Unable to parse filenames. "
-            "Filename instance is not list or tuple. | "
-            f"{filenames}"
-        )
+        err_msg = f"Unable to parse filenames. Filename instance is not list or tuple. | {filenames}"
         write_stderr(err_msg)
         raise TypeError(err_msg)
 
@@ -72,11 +69,7 @@ def remove_old_logs(logs_dir: str, days_to_keep: int) -> None:
             if is_older_than_x_days(file, days_to_keep):
                 delete_file(file)
         except Exception as e:
-            write_stderr(
-                f"Unable to delete passed {days_to_keep} days logs | "
-                f"{file} | "
-                f"{repr(e)}"
-            )
+            write_stderr(f"Unable to delete passed {days_to_keep} days logs | {file} | {repr(e)}")
 
 
 def list_files(directory: str, ends_with: str) -> tuple:
@@ -91,8 +84,7 @@ def list_files(directory: str, ends_with: str) -> tuple:
     try:
         result: list = []
         if os.path.isdir(directory):
-            result: list = [os.path.join(directory, f) for f in os.listdir(directory) if
-                            f.lower().endswith(ends_with)]
+            result: list = [os.path.join(directory, f) for f in os.listdir(directory) if f.lower().endswith(ends_with)]
             result.sort(key=os.path.getmtime)
         return tuple(result)
     except Exception as e:
@@ -177,10 +169,7 @@ def get_level(level: str) -> logging:
     """
 
     if not isinstance(level, str):
-        write_stderr(
-            "Unable to get log level. "
-            "Setting default level to: 'INFO' "
-            f"({logging.INFO})")
+        write_stderr(f"Unable to get log level. Setting default level to: 'INFO' ({logging.INFO})")
         return logging.INFO
 
     match level.lower():
@@ -211,13 +200,6 @@ def get_log_path(directory: str, filename: str) -> str:
     except IOError as e:
         write_stderr(f"Unable to open log file for writing | {log_file_path} | {repr(e)}")
         raise e
-
-    # try:
-    #     if os.path.isfile(log_file_path):
-    #         os.chmod(log_file_path , 0o755)
-    # except OSError as e:
-    #     write_stderr(f"Unable to set log file permissions | {repr(e)} | {log_file_path}")
-    #     raise e
 
     return log_file_path
 
@@ -261,13 +243,6 @@ def gzip_file(source, output_partial_name) -> gzip:
             write_stderr(f"Unable to zip log file | {source} | {repr(e)}")
             raise e
 
-        # try:
-        #     if os.path.isfile(renamed_dst):
-        #         os.chmod(renamed_dst , 0o755)
-        # except OSError as e:
-        #     write_stderr(f"Unable to set log file permissions | {repr(e)} | {renamed_dst}")
-        #     raise e
-
         try:
             delete_file(source)
         except OSError as e:
@@ -275,8 +250,9 @@ def gzip_file(source, output_partial_name) -> gzip:
             raise e
 
 
-def get_timezone(time_zone: str) -> (Callable[[float | None, Any], struct_time] |
-                                     Callable[[Any], struct_time]):
+def get_timezone(
+    time_zone: str,
+) -> Callable[[float | None, Any], struct_time] | Callable[[Any], struct_time]:
 
     match time_zone.lower():
         case "utc":

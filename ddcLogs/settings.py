@@ -7,7 +7,7 @@ from typing import Optional
 
 
 class LogLevel(str, Enum):
-    """ log levels """
+    """log levels"""
 
     CRITICAL = "CRITICAL"
     CRIT = "CRIT"
@@ -19,7 +19,8 @@ class LogLevel(str, Enum):
 
 
 class LogSettings(BaseSettings):
-    """ If any ENV variable is omitted, it falls back to default values here """
+    """If any ENV variable is omitted, it falls back to default values here"""
+
     load_dotenv()
 
     level: Optional[LogLevel] = Field(default=LogLevel.INFO)
@@ -30,8 +31,8 @@ class LogSettings(BaseSettings):
     date_format: Optional[str] = Field(default="%Y-%m-%dT%H:%M:%S")
     days_to_keep: Optional[int] = Field(default=30)
     timezone: Optional[str] = Field(default="UTC")
-    stream_handler: Optional[bool] = Field(default=True) # Add stream handler along with file handler
-    show_location: Optional[bool] = Field(default=False) # This will show the filename and the line number where the message originated
+    stream_handler: Optional[bool] = Field(default=True)
+    show_location: Optional[bool] = Field(default=False)
 
     # SizeRotatingLog
     max_file_size_mb: Optional[int] = Field(default=10)

@@ -5,12 +5,14 @@ from typing import Optional
 from ddcLogs.log_utils import (
     check_directory_permissions,
     check_filename_instance,
-    get_level, get_log_path,
+    get_level,
+    get_log_path,
     get_logger_and_formatter,
     get_stream_handler,
     gzip_file,
     list_files,
-    remove_old_logs, write_stderr,
+    remove_old_logs,
+    write_stderr,
 )
 from ddcLogs.settings import LogSettings
 
@@ -19,7 +21,7 @@ class SizeRotatingLog:
     def __init__(
         self,
         level: Optional[str] = None,
-        appname: Optional[str] = None,
+        name: Optional[str] = None,
         directory: Optional[str] = None,
         filenames: Optional[list | tuple] = None,
         maxmbytes: Optional[int] = None,
@@ -32,7 +34,7 @@ class SizeRotatingLog:
     ):
         _settings = LogSettings()
         self.level = get_level(level or _settings.level)
-        self.appname = appname or _settings.appname
+        self.appname = name or _settings.appname
         self.directory = directory or _settings.directory
         self.filenames = filenames or (_settings.filename,)
         self.maxmbytes = maxmbytes or _settings.max_file_size_mb
@@ -43,15 +45,11 @@ class SizeRotatingLog:
         self.streamhandler = streamhandler or _settings.stream_handler
         self.showlocation = showlocation or _settings.show_location
 
-
     def init(self):
         check_filename_instance(self.filenames)
         check_directory_permissions(self.directory)
 
-        logger, formatter = get_logger_and_formatter(self.appname,
-                                                     self.datefmt,
-                                                     self.showlocation,
-                                                     self.timezone)
+        logger, formatter = get_logger_and_formatter(self.appname, self.datefmt, self.showlocation, self.timezone)
         logger.setLevel(self.level)
 
         for file in self.filenames:
@@ -64,12 +62,9 @@ class SizeRotatingLog:
                 backupCount=self.daystokeep,
                 encoding=self.encoding,
                 delay=False,
-                errors=None
+                errors=None,
             )
-            file_handler.rotator = GZipRotatorSize(
-                self.directory,
-                self.daystokeep
-            )
+            file_handler.rotator = GZipRotatorSize(self.directory, self.daystokeep)
             file_handler.setFormatter(formatter)
             file_handler.setLevel(self.level)
             logger.addHandler(file_handler)
@@ -94,7 +89,6 @@ class GZipRotatorSize:
             if os.path.isfile(source):
                 gzip_file(source, new_file_number)
 
-
     @staticmethod
     def _get_new_file_number(directory, source_filename):
         new_file_number = 1
@@ -106,10 +100,6 @@ class GZipRotatorSize:
                     if len(oldest_file_name) > 1:
                         new_file_number = int(oldest_file_name[1]) + 1
                 except ValueError as e:
-                    write_stderr(
-                        "Unable to get previous gz log file number | "
-                        f"{gz_file} | "
-                        f"{repr(e)}"
-                    )
+                    write_stderr(f"Unable to get previous gz log file number | {gz_file} | {repr(e)}")
                     raise
         return new_file_number
