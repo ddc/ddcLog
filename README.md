@@ -4,8 +4,8 @@
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org)
 [![PyPi](https://img.shields.io/pypi/v/ddcLogs.svg)](https://pypi.python.org/pypi/ddcLogs)
 [![PyPI Downloads](https://static.pepy.tech/badge/ddcLogs)](https://pepy.tech/projects/ddclogs)
-[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A//actions-badge.atrox.dev/ddc/ddcLogs/badge?ref=main&style=plastic&label=build&logo=none)](https://actions-badge.atrox.dev/ddc/ddcLogs/goto?ref=main)
 [![codecov](https://codecov.io/github/ddc/ddcLogs/graph/badge.svg?token=3MEPITZKYN)](https://codecov.io/github/ddc/ddcLogs)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A//actions-badge.atrox.dev/ddc/ddcLogs/badge?ref=main&label=build&logo=none)](https://actions-badge.atrox.dev/ddc/ddcLogs/goto?ref=main)
 
 
 
