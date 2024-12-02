@@ -1,9 +1,12 @@
 # -*- encoding: utf-8 -*-
 import logging
-import time
 from typing import Optional
-from .log_utils import get_format, get_level
-from .settings import LogSettings
+from ddcLogs.log_utils import (
+    get_format,
+    get_level,
+    get_timezone,
+)
+from ddcLogs.settings import LogSettings
 
 
 class BasicLog:
@@ -13,7 +16,7 @@ class BasicLog:
         appname: Optional[str] =  None,
         encoding: Optional[str] = None,
         datefmt: Optional[str] = None,
-        utc: Optional[bool] = None,
+        timezone: Optional[str] = None,
         showlocation: Optional[bool] = None,
     ):
         _settings = LogSettings()
@@ -21,18 +24,15 @@ class BasicLog:
         self.appname = appname or _settings.appname
         self.encoding = encoding or _settings.encoding
         self.datefmt = datefmt or _settings.date_format
-        self.utc = utc or _settings.utc
+        self.timezone = timezone or _settings.timezone
         self.showlocation = showlocation or _settings.show_location
 
     def init(self):
-        if self.utc:
-            logging.Formatter.converter = time.gmtime
-
-        formatt = get_format(self.showlocation, self.appname)
-        logging.basicConfig(level=self.level,
-                            datefmt=self.datefmt,
-                            encoding=self.encoding,
-                            format=formatt)
         logger = logging.getLogger(self.appname)
         logger.setLevel(self.level)
+        logging.Formatter.converter = get_timezone(self.timezone)
+        _format = get_format(self.showlocation, self.appname, self.timezone)
+        logging.basicConfig(datefmt=self.datefmt,
+                            encoding=self.encoding,
+                            format=_format)
         return logger

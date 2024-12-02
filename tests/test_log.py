@@ -9,7 +9,6 @@ from ddcLogs.log_utils import delete_file
 class TestLogs:
     @classmethod
     def setup_class(cls):
-        cls.level = "info"
         cls.directory = tempfile.gettempdir()
         cls.filenames = ("test1.log", "test2.log")
 
@@ -21,8 +20,10 @@ class TestLogs:
                 delete_file(file_path)
 
     def test_basic_log(self, caplog):
-        log = BasicLog(level=self.level).init()
+        level = "INFO"
+        log = BasicLog(level=level).init()
         log.info("test_basic_log")
+        assert level in caplog.text
         assert "test_basic_log" in caplog.text
 
     def test_size_rotating_log(self, caplog):
@@ -33,13 +34,15 @@ class TestLogs:
                 f.seek((2 * 1024 * 1024) - 1)
                 f.write(b"\0")
 
+        level = "INFO"
         max_mbytes = 1
         log = SizeRotatingLog(directory=self.directory,
-                              level=self.level,
+                              level=level,
                               filenames=self.filenames,
                               maxmbytes=max_mbytes).init()
 
         log.info("test_size_rotating_log")
+        assert level in caplog.text
         assert "test_size_rotating_log" in caplog.text
 
         # delete test.gz files
@@ -50,16 +53,18 @@ class TestLogs:
             delete_file(gz_file_path)
 
     def test_timed_rotating_log(self, caplog):
+        level = "INFO"
         year = 2020
         month = 10
         day = 10
 
         log = TimedRotatingLog(
             directory=self.directory,
-            level=self.level,
+            level=level,
             filenames=self.filenames
         ).init()
         log.info("start_test_timed_rotating_log")
+        assert level in caplog.text
         assert "start_test_timed_rotating_log" in caplog.text
 
         # change files datetime
@@ -70,10 +75,11 @@ class TestLogs:
 
         log = TimedRotatingLog(
             directory=self.directory,
-            level=self.level,
+            level=level,
             filenames=self.filenames
         ).init()
         log.info("end_test_timed_rotating_log")
+        assert level in caplog.text
         assert "end_test_timed_rotating_log" in caplog.text
 
         # delete test.gz files

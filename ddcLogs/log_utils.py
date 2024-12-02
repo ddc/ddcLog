@@ -7,6 +7,9 @@ import shutil
 import sys
 import time
 from datetime import datetime, timedelta
+from time import struct_time
+from typing import Any, Callable
+import pytz
 
 
 def get_stream_handler(
@@ -24,17 +27,16 @@ def get_logger_and_formatter(
     name: str,
      datefmt: str,
      show_location: bool,
-     utc: bool,
+     timezone: str,
 ) -> [logging.Logger, logging.Formatter]:
 
     logger = logging.getLogger(name)
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
 
-    formatt = get_format(show_location, name)
+    formatt = get_format(show_location, name, timezone)
     formatter = logging.Formatter(formatt, datefmt=datefmt)
-    if utc:
-        formatter.converter = time.gmtime
+    formatter.converter = get_timezone(timezone)
     return logger, formatter
 
 
@@ -79,7 +81,8 @@ def remove_old_logs(logs_dir: str, days_to_keep: int) -> None:
 
 def list_files(directory: str, ends_with: str) -> tuple:
     """
-    List all files in the given directory and returns them in a list sorted by creation time in ascending order
+    List all files in the given directory
+        and returns them in a list sorted by creation time in ascending order
     :param directory:
     :param ends_with:
     :return: tuple
@@ -219,7 +222,7 @@ def get_log_path(directory: str, filename: str) -> str:
     return log_file_path
 
 
-def get_format(show_location: bool, name: str | None) -> str:
+def get_format(show_location: bool, name: str, timezone: str) -> str:
     _debug_fmt = ""
     _logger_name = ""
 
@@ -229,7 +232,12 @@ def get_format(show_location: bool, name: str | None) -> str:
     if show_location:
         _debug_fmt = "[%(filename)s:%(funcName)s:%(lineno)d]:"
 
-    fmt = f"[%(asctime)s.%(msecs)03d]:[%(levelname)s]:{_logger_name}{_debug_fmt}%(message)s"
+    if timezone == "localtime":
+        utc_offset = time.strftime("%z")
+    else:
+        utc_offset = datetime.now(pytz.timezone(timezone)).strftime("%z")
+
+    fmt = f"[%(asctime)s.%(msecs)03d{utc_offset}]:[%(levelname)s]:{_logger_name}{_debug_fmt}%(message)s"
     return fmt
 
 
@@ -265,3 +273,15 @@ def gzip_file(source, output_partial_name) -> gzip:
         except OSError as e:
             write_stderr(f"Unable to delete_file old source log file | {source} | {repr(e)}")
             raise e
+
+
+def get_timezone(time_zone: str) -> (Callable[[float | None, Any], struct_time] |
+                                     Callable[[Any], struct_time]):
+
+    match time_zone.lower():
+        case "utc":
+            return time.gmtime
+        case "localtime":
+            return time.localtime
+        case _:
+            return lambda *args: datetime.now(tz=pytz.timezone(time_zone)).timetuple()

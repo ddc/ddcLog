@@ -7,10 +7,14 @@
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A//actions-badge.atrox.dev/ddc/ddcLogs/badge?ref=main&style=plastic&label=build&logo=none)](https://actions-badge.atrox.dev/ddc/ddcLogs/goto?ref=main)
 
 
-# Logs
-+ Parameters for all classes are declared as OPTIONAL falling back to [.env](./ddcLogs/.env.example) file variables
-+ Default settings can be checked here: [settings.py](ddcLogs/settings.py)
 
+# Logs
++ Parameters for all classes are declared as OPTIONAL 
++ If any [.env](./ddcLogs/.env.example) variable is omitted, it falls back to default values here: [settings.py](ddcLogs/settings.py)
++ Timezone parameter can also accept `localtime`, default to `UTC`
+  + This parameter is only to display the timezone datetime inside the log file
+  + For timed rotation, only UTC and localtime are supported, meaning it will rotate at UTC or localtime
+    + env variable to change between UTC and localtime is `LOG_ROLL_OVER_AT_UTC` and default to True
 
 
 
@@ -31,12 +35,13 @@ logger = BasicLog(
     appname = "app",
     encoding = "UTF-8",
     datefmt = "%Y-%m-%dT%H:%M:%S",
-    utc = True,
+    timezone = "America/Sao_Paulo",
     showlocation = False, # This will show the filename and the line number where the message originated
 ).init()
 logger.warning("This is a warning example")
 ```
-
+#### Example of output
+`[2024-10-08T19:08:56.918-0300]:[WARNING]:[app]:This is a warning example`
 
 
 # SizeRotatingLog
@@ -55,13 +60,14 @@ logger = SizeRotatingLog(
     daystokeep = 7,
     encoding = "UTF-8",
     datefmt = "%Y-%m-%dT%H:%M:%S",
-    utc = True,
+    timezone = "America/Chicago",
     streamhandler = True, # Add stream handler along with file handler
     showlocation = False # This will show the filename and the line number where the message originated
 ).init()
 logger.warning("This is a warning example")
 ```
-
+#### Example of output
+`[2024-10-08T19:08:56.918-0500]:[WARNING]:[app]:This is a warning example`
 
 
 
@@ -85,17 +91,15 @@ logger = TimedRotatingLog(
     daystokeep = 7,
     encoding = "UTF-8",
     datefmt = "%Y-%m-%dT%H:%M:%S",
-    utc = True,
+    timezone = "UTC",
     streamhandler = True, # Add stream handler along with file handler
     showlocation = False # This will show the filename and the line number where the message originated
 ).init()
 logger.warning("This is a warning example")
 ```
+#### Example of output
+`[2024-10-08T19:08:56.918-0000]:[WARNING]:[app]:This is a warning example`
 
-
-
-### Example of output
-`[2024-10-08T19:08:56.918]:[WARNING]:[app]:This is a warning example`
 
 
 
@@ -117,6 +121,7 @@ poe tests
 
 # License
 Released under the [MIT License](LICENSE)
+
 
 
 

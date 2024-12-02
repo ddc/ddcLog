@@ -2,7 +2,7 @@
 import logging.handlers
 import os
 from typing import Optional
-from .log_utils import (
+from ddcLogs.log_utils import (
     check_directory_permissions,
     check_filename_instance,
     get_level,
@@ -10,9 +10,9 @@ from .log_utils import (
     get_logger_and_formatter,
     get_stream_handler,
     gzip_file,
-    remove_old_logs
+    remove_old_logs,
 )
-from .settings import LogSettings
+from ddcLogs.settings import LogSettings
 
 
 class TimedRotatingLog:
@@ -33,23 +33,25 @@ class TimedRotatingLog:
         daystokeep: Optional[int] = None,
         encoding: Optional[str] = None,
         datefmt: Optional[str] = None,
-        utc: Optional[bool] = None,
+        timezone: Optional[str] = None,
         streamhandler: Optional[bool] = None,
         showlocation: Optional[bool] = None,
+        rotateatutc: Optional[bool] = None,
     ):
         _settings = LogSettings()
         self.level = get_level(level or _settings.level)
         self.appname = appname or _settings.appname
         self.directory = directory or _settings.directory
         self.filenames = filenames or (_settings.filename,)
-        self.when = when or _settings.rotating_when
-        self.sufix = sufix or _settings.rotating_file_sufix
+        self.when = when or _settings.rotate_when
+        self.sufix = sufix or _settings.rotate_file_sufix
         self.daystokeep = daystokeep or _settings.days_to_keep
         self.encoding = encoding or _settings.encoding
         self.datefmt = datefmt or _settings.date_format
-        self.utc = utc or _settings.utc
+        self.timezone = timezone or _settings.timezone
         self.streamhandler = streamhandler or _settings.stream_handler
         self.showlocation = showlocation or _settings.show_location
+        self.rotateatutc = rotateatutc or _settings.rotate_at_utc
 
     def init(self):
         check_filename_instance(self.filenames)
@@ -58,7 +60,7 @@ class TimedRotatingLog:
         logger, formatter = get_logger_and_formatter(self.appname,
                                                      self.datefmt,
                                                      self.showlocation,
-                                                     self.utc)
+                                                     self.timezone)
         logger.setLevel(self.level)
 
         for file in self.filenames:
@@ -68,7 +70,7 @@ class TimedRotatingLog:
                 filename=log_file_path,
                 encoding=self.encoding,
                 when=self.when,
-                utc=self.utc,
+                utc=self.rotateatutc,
                 backupCount=self.daystokeep
             )
             file_handler.suffix = self.sufix
@@ -85,7 +87,6 @@ class TimedRotatingLog:
             logger.addHandler(stream_hdlr)
 
         return logger
-
 
 class GZipRotatorTimed:
     def __init__(self, dir_logs: str, days_to_keep: int):

@@ -2,7 +2,7 @@
 import logging.handlers
 import os
 from typing import Optional
-from .log_utils import (
+from ddcLogs.log_utils import (
     check_directory_permissions,
     check_filename_instance,
     get_level, get_log_path,
@@ -12,7 +12,7 @@ from .log_utils import (
     list_files,
     remove_old_logs, write_stderr,
 )
-from .settings import LogSettings
+from ddcLogs.settings import LogSettings
 
 
 class SizeRotatingLog:
@@ -26,7 +26,7 @@ class SizeRotatingLog:
         daystokeep: Optional[int] = None,
         encoding: Optional[str] = None,
         datefmt: Optional[str] = None,
-        utc: Optional[bool] = None,
+        timezone: Optional[str] = None,
         streamhandler: Optional[bool] = None,
         showlocation: Optional[bool] = None,
     ):
@@ -39,7 +39,7 @@ class SizeRotatingLog:
         self.daystokeep = daystokeep or _settings.days_to_keep
         self.encoding = encoding or _settings.encoding
         self.datefmt = datefmt or _settings.date_format
-        self.utc = utc or _settings.utc
+        self.timezone = timezone or _settings.timezone
         self.streamhandler = streamhandler or _settings.stream_handler
         self.showlocation = showlocation or _settings.show_location
 
@@ -51,7 +51,7 @@ class SizeRotatingLog:
         logger, formatter = get_logger_and_formatter(self.appname,
                                                      self.datefmt,
                                                      self.showlocation,
-                                                     self.utc)
+                                                     self.timezone)
         logger.setLevel(self.level)
 
         for file in self.filenames:

@@ -19,7 +19,7 @@ class LogLevel(str, Enum):
 
 
 class LogSettings(BaseSettings):
-    """ settings defined here with fallback to reading ENV variables """
+    """ If any ENV variable is omitted, it falls back to default values here """
     load_dotenv()
 
     level: Optional[LogLevel] = Field(default=LogLevel.INFO)
@@ -29,7 +29,7 @@ class LogSettings(BaseSettings):
     encoding: Optional[str] = Field(default="UTF-8")
     date_format: Optional[str] = Field(default="%Y-%m-%dT%H:%M:%S")
     days_to_keep: Optional[int] = Field(default=30)
-    utc: Optional[bool] = Field(default=True)
+    timezone: Optional[str] = Field(default="UTC")
     stream_handler: Optional[bool] = Field(default=True) # Add stream handler along with file handler
     show_location: Optional[bool] = Field(default=False) # This will show the filename and the line number where the message originated
 
@@ -37,7 +37,8 @@ class LogSettings(BaseSettings):
     max_file_size_mb: Optional[int] = Field(default=10)
 
     # TimedRotatingLog
-    rotating_when: Optional[str] = Field(default="midnight")
-    rotating_file_sufix: Optional[str] = Field(default="%Y%m%d")
+    rotate_when: Optional[str] = Field(default="midnight")
+    rotate_at_utc: Optional[bool] = Field(default=True)
+    rotate_file_sufix: Optional[str] = Field(default="%Y%m%d")
 
     model_config = SettingsConfigDict(env_prefix="LOG_", env_file=".env", extra="allow")
