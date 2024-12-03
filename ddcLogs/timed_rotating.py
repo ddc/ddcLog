@@ -9,7 +9,7 @@ from ddcLogs.log_utils import (
     get_log_path,
     get_logger_and_formatter,
     get_stream_handler,
-    gzip_file,
+    gzip_file_with_sufix,
     remove_old_logs,
 )
 from ddcLogs.settings import LogSettings
@@ -90,5 +90,5 @@ class GZipRotatorTimed:
 
     def __call__(self, source: str, dest: str) -> None:
         remove_old_logs(self.dir, self.days_to_keep)
-        output_dated_name = os.path.splitext(dest)[1].replace(".", "")
-        gzip_file(source, output_dated_name)
+        sufix = os.path.splitext(dest)[1].replace(".", "")
+        gzip_file_with_sufix(source, sufix)

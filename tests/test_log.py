@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+import gzip
 import os
 import tempfile
 from datetime import datetime
@@ -10,7 +11,7 @@ class TestLogs:
     @classmethod
     def setup_class(cls):
         cls.directory = tempfile.gettempdir()
-        cls.filenames = ("test1.log", "test2.log")
+        cls.filenames = ("testA.log", "testB.log", "testC.log")
 
     @classmethod
     def teardown_class(cls):
@@ -21,8 +22,15 @@ class TestLogs:
 
     def test_basic_log(self, caplog):
         level = "INFO"
-        log = BasicLog(level=level).init()
-        log.info("test_basic_log")
+        logger = BasicLog(
+            level=level,
+            name="app",
+            encoding="UTF-8",
+            datefmt="%Y-%m-%dT%H:%M:%S",
+            timezone="UTC",
+            showlocation=False,
+        ).init()
+        logger.info("test_basic_log")
         assert level in caplog.text
         assert "test_basic_log" in caplog.text
 
@@ -34,22 +42,40 @@ class TestLogs:
                 f.seek((2 * 1024 * 1024) - 1)
                 f.write(b"\0")
 
-        level = "INFO"
-        max_mbytes = 1
-        log = SizeRotatingLog(directory=self.directory,
-                              level=level,
-                              filenames=self.filenames,
-                              maxmbytes=max_mbytes).init()
+        # creating an exisiting gz file to force rotation number
+        fname_no_ext = self.filenames[0].split(".")[0]
+        existing_gz_filename = f"{fname_no_ext}_1.log.gz"
+        existing_gz_file_path = str(os.path.join(self.directory, existing_gz_filename))
+        with gzip.open(existing_gz_file_path, "wb") as fout:
+            fout.write(b"")
+        new_gz_filename_rotated = f"{fname_no_ext}_2.log.gz"
+        new_gz_filepath_rotated = str(os.path.join(self.directory, new_gz_filename_rotated))
 
-        log.info("test_size_rotating_log")
+        level = "INFO"
+        logger = SizeRotatingLog(
+            level=level,
+            name="app",
+            directory=self.directory,
+            filenames=self.filenames,
+            maxmbytes=1,
+            daystokeep=7,
+            encoding="UTF-8",
+            datefmt="%Y-%m-%dT%H:%M:%S",
+            timezone="UTC",
+            streamhandler=True,
+            showlocation=False,
+        ).init()
+        logger.info("test_size_rotating_log")
         assert level in caplog.text
         assert "test_size_rotating_log" in caplog.text
 
-        # delete test.gz files
+        # delete .gz files
+        assert os.path.isfile(new_gz_filepath_rotated) == True
+        delete_file(new_gz_filepath_rotated)
         for filename in self.filenames:
             gz_file_name = f"{os.path.splitext(filename)[0]}_1.log.gz"
             gz_file_path = os.path.join(tempfile.gettempdir(), gz_file_name)
-            assert os.path.isfile(gz_file_path)
+            assert os.path.isfile(gz_file_path) == True
             delete_file(gz_file_path)
 
     def test_timed_rotating_log(self, caplog):
@@ -58,12 +84,21 @@ class TestLogs:
         month = 10
         day = 10
 
-        log = TimedRotatingLog(
-            directory=self.directory,
+        logger = TimedRotatingLog(
             level=level,
-            filenames=self.filenames
+            name="app",
+            directory=self.directory,
+            filenames=self.filenames,
+            when="midnight",
+            sufix="%Y%m%d",
+            daystokeep=7,
+            encoding="UTF-8",
+            datefmt="%Y-%m-%dT%H:%M:%S",
+            timezone="UTC",
+            streamhandler=True,
+            showlocation=False,
         ).init()
-        log.info("start_test_timed_rotating_log")
+        logger.info("start_test_timed_rotating_log")
         assert level in caplog.text
         assert "start_test_timed_rotating_log" in caplog.text
 
@@ -73,12 +108,21 @@ class TestLogs:
             file_path = str(os.path.join(self.directory, filename))
             os.utime(file_path, (epoch_times, epoch_times))
 
-        log = TimedRotatingLog(
-            directory=self.directory,
+        logger = TimedRotatingLog(
             level=level,
-            filenames=self.filenames
+            name="app",
+            directory=self.directory,
+            filenames=self.filenames,
+            when="midnight",
+            sufix="%Y%m%d",
+            daystokeep=7,
+            encoding="UTF-8",
+            datefmt="%Y-%m-%dT%H:%M:%S",
+            timezone="UTC",
+            streamhandler=True,
+            showlocation=False,
         ).init()
-        log.info("end_test_timed_rotating_log")
+        logger.info("end_test_timed_rotating_log")
         assert level in caplog.text
         assert "end_test_timed_rotating_log" in caplog.text
 
