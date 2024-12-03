@@ -9,7 +9,7 @@ from ddcLogs.log_utils import (
     get_log_path,
     get_logger_and_formatter,
     get_stream_handler,
-    gzip_file,
+    gzip_file_with_sufix,
     list_files,
     remove_old_logs,
     write_stderr,
@@ -87,7 +87,7 @@ class GZipRotatorSize:
             source_filename, _ = os.path.basename(source).split(".")
             new_file_number = self._get_new_file_number(self.directory, source_filename)
             if os.path.isfile(source):
-                gzip_file(source, new_file_number)
+                gzip_file_with_sufix(source, new_file_number)
 
     @staticmethod
     def _get_new_file_number(directory, source_filename):

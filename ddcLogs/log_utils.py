@@ -4,7 +4,6 @@ import gzip
 import logging.handlers
 import os
 import shutil
-import sys
 import time
 from datetime import datetime, timedelta
 from time import struct_time
@@ -37,7 +36,7 @@ def get_logger_and_formatter(
 
     formatt = get_format(show_location, name, timezone)
     formatter = logging.Formatter(formatt, datefmt=datefmt)
-    formatter.converter = get_timezone(timezone)
+    formatter.converter = get_timezone_function(timezone)
     return logger, formatter
 
 
@@ -49,17 +48,18 @@ def check_filename_instance(filenames: list | tuple) -> None:
 
 
 def check_directory_permissions(directory_path: str) -> None:
-    if os.path.isdir(directory_path) and not os.access(directory_path, os.R_OK | os.W_OK | os.X_OK):
-        write_stderr(f"Unable to access directory | {directory_path}")
-        raise OSError(errno.EACCES)
+    if os.path.isdir(directory_path) and not os.access(directory_path, os.W_OK | os.X_OK):
+        err_msg = f"Unable to access directory | {directory_path}"
+        write_stderr(err_msg)
+        raise PermissionError(err_msg)
 
     try:
         if not os.path.isdir(directory_path):
             os.makedirs(directory_path, mode=0o755, exist_ok=True)
-    except OSError as e:
+    except PermissionError as e:
         err_msg = f"Unable to create directory | {directory_path}"
         write_stderr(f"{err_msg} | {repr(e)}")
-        raise e
+        raise PermissionError(err_msg)
 
 
 def remove_old_logs(logs_dir: str, days_to_keep: int) -> None:
@@ -69,7 +69,7 @@ def remove_old_logs(logs_dir: str, days_to_keep: int) -> None:
             if is_older_than_x_days(file, days_to_keep):
                 delete_file(file)
         except Exception as e:
-            write_stderr(f"Unable to delete passed {days_to_keep} days logs | {file} | {repr(e)}")
+            write_stderr(f"Unable to delete {days_to_keep} days old logs | {file} | {repr(e)}")
 
 
 def list_files(directory: str, ends_with: str) -> tuple:
@@ -146,19 +146,10 @@ def write_stderr(msg: str) -> None:
     :return: None
     """
 
-    dt = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
-    sys.stderr.write(f"[{dt}]:[ERROR]:{msg}\n")
+    from .basic_log import BasicLog
 
-
-def write_stdout(msg: str) -> None:
-    """
-    Write msg to stdout
-    :param msg:
-    :return: None
-    """
-
-    dt = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
-    sys.stdout.write(f"[{dt}]:[WARNING]:{msg}\n")
+    logger = BasicLog(level="INFO", name=__name__).init()
+    logger.error(msg)
 
 
 def get_level(level: str) -> logging:
@@ -194,11 +185,18 @@ def get_log_path(directory: str, filename: str) -> str:
     """
 
     log_file_path = str(os.path.join(directory, filename))
+    err_message = f"Unable to open log file for writing | {log_file_path}"
 
     try:
         open(log_file_path, "a+").close()
-    except IOError as e:
-        write_stderr(f"Unable to open log file for writing | {log_file_path} | {repr(e)}")
+    except PermissionError as e:
+        write_stderr(f"{err_message} | {repr(e)}")
+        raise PermissionError(err_message)
+    except FileNotFoundError as e:
+        write_stderr(f"{err_message} | {repr(e)}")
+        raise FileNotFoundError(err_message)
+    except OSError as e:
+        write_stderr(f"{err_message} | {repr(e)}")
         raise e
 
     return log_file_path
@@ -223,34 +221,36 @@ def get_format(show_location: bool, name: str, timezone: str) -> str:
     return fmt
 
 
-def gzip_file(source, output_partial_name) -> gzip:
+def gzip_file_with_sufix(file_path, sufix) -> str | None:
     """
     gzip file
-    :param source:
-    :param output_partial_name:
-    :return: gzip
+    :param file_path:
+    :param sufix:
+    :return: bool
     """
 
-    if os.path.isfile(source) and os.stat(source).st_size > 0:
-        sfname, sext = os.path.splitext(source)
-        renamed_dst = f"{sfname}_{output_partial_name}{sext}.gz"
+    if os.path.isfile(file_path):
+        sfname, sext = os.path.splitext(file_path)
+        renamed_dst = f"{sfname}_{sufix}{sext}.gz"
 
         try:
-            with open(source, "rb") as fin:
+            with open(file_path, "rb") as fin:
                 with gzip.open(renamed_dst, "wb") as fout:
                     fout.writelines(fin)
         except Exception as e:
-            write_stderr(f"Unable to zip log file | {source} | {repr(e)}")
+            write_stderr(f"Unable to gzip log file | {file_path} | {repr(e)}")
             raise e
 
         try:
-            delete_file(source)
+            delete_file(file_path)
         except OSError as e:
-            write_stderr(f"Unable to delete_file old source log file | {source} | {repr(e)}")
+            write_stderr(f"Unable to delete source log file | {file_path} | {repr(e)}")
             raise e
 
+        return renamed_dst
 
-def get_timezone(
+
+def get_timezone_function(
     time_zone: str,
 ) -> Callable[[float | None, Any], struct_time] | Callable[[Any], struct_time]:
 

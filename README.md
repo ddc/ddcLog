@@ -62,15 +62,15 @@ from ddcLogs import SizeRotatingLog
 logger = SizeRotatingLog(
     level="debug",
     name="app",
-    directory="/.logs",
+    directory="/app/logs",
     filenames=["main.log", "app1.log"],
     maxmbytes=5,
     daystokeep=7,
     encoding="UTF-8",
     datefmt="%Y-%m-%dT%H:%M:%S",
     timezone="America/Chicago",
-    streamhandler=True, # Add stream handler along with file handler
-    showlocation=False # This will show the filename and the line number where the message originated
+    streamhandler=True,
+    showlocation=False
 ).init()
 logger.warning("This is a warning example")
 ```
@@ -94,7 +94,7 @@ from ddcLogs import TimedRotatingLog
 logger = TimedRotatingLog(
     level="debug",
     name="app",
-    directory="./logs",
+    directory="/app/logs",
     filenames=["main.log", "app2.log"],
     when="midnight",
     sufix="%Y%m%d",
@@ -102,8 +102,8 @@ logger = TimedRotatingLog(
     encoding="UTF-8",
     datefmt="%Y-%m-%dT%H:%M:%S",
     timezone="UTC",
-    streamhandler=True, # Add stream handler along with file handler
-    showlocation=False # This will show the filename and the line number where the message originated
+    streamhandler=True,
+    showlocation=False
 ).init()
 logger.warning("This is a warning example")
 ```
