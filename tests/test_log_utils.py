@@ -19,7 +19,7 @@ class TestLogUtils:
 
     def test_get_stream_handler(self):
         level = log_utils.get_level("DEBUG")
-        logger, formatter = log_utils.get_logger_and_formatter("appname", "%Y-%m-%dT%H:%M:%S", False, "UTC")
+        _, formatter = log_utils.get_logger_and_formatter("appname", "%Y-%m-%dT%H:%M:%S", False, "UTC")
         stream_hdlr = log_utils.get_stream_handler(level, formatter)
         assert isinstance(stream_hdlr, logging.StreamHandler)
 
