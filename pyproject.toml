@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "ddcLogs"
-version = "3.0.6"
+version = "3.0.7"
 description = "Easy logs with rotations"
 license = "MIT"
 readme = "README.md"
@@ -35,14 +35,14 @@ optional = true
 
 [tool.poetry.dependencies]
 python = ">=3.10,<=3.13"
-pydantic-settings = ">=2.6.1"
-python-dotenv = ">=1.0.1"
-pytz = ">=2024.2"
+pydantic-settings = "^2.6.1"
+python-dotenv = "^1.0.1"
+pytz = "^2024.2"
 
 [tool.poetry.group.test.dependencies]
-coverage = ">=7.6.8"
-poethepoet = ">=0.31.1"
-pytest = ">=8.3.3"
+coverage = "^7.6.8"
+poethepoet = "^0.31.1"
+pytest = "^8.3.3"
 
 [tool.poe.tasks]
 _test = "poetry run coverage run --omit=./tests/* --source=./ddcLogs -m pytest -v"

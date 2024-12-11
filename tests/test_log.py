@@ -22,7 +22,7 @@ class TestLogs:
 
     def test_basic_log(self, caplog):
         level = "INFO"
-        logger = BasicLog(
+        log = BasicLog(
             level=level,
             name="app",
             encoding="UTF-8",
@@ -30,7 +30,7 @@ class TestLogs:
             timezone="UTC",
             showlocation=False,
         ).init()
-        logger.info("test_basic_log")
+        log.info("test_basic_log")
         assert level in caplog.text
         assert "test_basic_log" in caplog.text
 
@@ -52,7 +52,7 @@ class TestLogs:
         new_gz_filepath_rotated = str(os.path.join(self.directory, new_gz_filename_rotated))
 
         level = "INFO"
-        logger = SizeRotatingLog(
+        log = SizeRotatingLog(
             level=level,
             name="app",
             directory=self.directory,
@@ -65,7 +65,7 @@ class TestLogs:
             streamhandler=True,
             showlocation=False,
         ).init()
-        logger.info("test_size_rotating_log")
+        log.info("test_size_rotating_log")
         assert level in caplog.text
         assert "test_size_rotating_log" in caplog.text
 
@@ -84,7 +84,7 @@ class TestLogs:
         month = 10
         day = 10
 
-        logger = TimedRotatingLog(
+        log = TimedRotatingLog(
             level=level,
             name="app",
             directory=self.directory,
@@ -98,7 +98,7 @@ class TestLogs:
             streamhandler=True,
             showlocation=False,
         ).init()
-        logger.info("start_test_timed_rotating_log")
+        log.info("start_test_timed_rotating_log")
         assert level in caplog.text
         assert "start_test_timed_rotating_log" in caplog.text
 
@@ -108,7 +108,7 @@ class TestLogs:
             file_path = str(os.path.join(self.directory, filename))
             os.utime(file_path, (epoch_times, epoch_times))
 
-        logger = TimedRotatingLog(
+        log = TimedRotatingLog(
             level=level,
             name="app",
             directory=self.directory,
@@ -122,7 +122,7 @@ class TestLogs:
             streamhandler=True,
             showlocation=False,
         ).init()
-        logger.info("end_test_timed_rotating_log")
+        log.info("end_test_timed_rotating_log")
         assert level in caplog.text
         assert "end_test_timed_rotating_log" in caplog.text
 
