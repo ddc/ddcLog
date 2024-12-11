@@ -4,8 +4,9 @@ import gzip
 import logging.handlers
 import os
 import shutil
+import sys
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone as dttz
 from time import struct_time
 from typing import Any, Callable
 import pytz
@@ -146,10 +147,10 @@ def write_stderr(msg: str) -> None:
     :return: None
     """
 
-    from .basic_log import BasicLog
-
-    logger = BasicLog(level="INFO", name=__name__).init()
-    logger.error(msg)
+    obj = datetime.now(dttz.utc)
+    dt = obj.astimezone(pytz.timezone(os.getenv("LOG_TIMEZONE", "UTC")))
+    dt_timezone = dt.strftime("%Y-%m-%dT%H:%M:%S.%f:%z")
+    sys.stderr.write(f"[{dt_timezone}]:[ERROR]:{msg}\n")
 
 
 def get_level(level: str) -> logging:
