@@ -31,7 +31,7 @@ jobs:
 
       - name: Run tests
         run: |
-          python -m poetry run coverage run --omit=./tests/* --source=./ddcLogs -m pytest -v
+          python -m poetry run coverage run --omit=./tests/* -m pytest -v
 
       - name: Generate Coverage Report
         run: |  
@@ -42,6 +42,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
             token: ${{ secrets.CODECOV_TOKEN }}
+            slug: ddc/ddcLogs
 
       - name: Build package
         run: |  

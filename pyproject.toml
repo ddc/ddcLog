@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "ddcLogs"
-version = "3.0.9"
+version = "3.0.10"
 description = "Easy logs with rotations"
 license = "MIT"
 readme = "README.md"
@@ -30,8 +30,10 @@ classifiers = [
     "Natural Language :: English",
 ]
 
+
 [tool.poetry.group.test]
 optional = true
+
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -39,14 +41,22 @@ pydantic-settings = "^2.6.1"
 python-dotenv = "^1.0.1"
 pytz = "^2024.2"
 
+
 [tool.poetry.group.test.dependencies]
 coverage = "^7.6.9"
 poethepoet = "^0.31.1"
 pytest = "^8.3.4"
 
+
+[tool.coverage.run]
+omit = [
+    "tests/*",
+]
+
+
 [tool.poe.tasks]
-_test = "poetry run coverage run --omit=./tests/* --source=./ddcLogs -m pytest -v"
-_coverage_report = "poetry run coverage report"
-_coverage_xml = "poetry run coverage xml"
+_test = "coverage run -m pytest -v"
+_coverage_report = "coverage report"
+_coverage_xml = "coverage xml"
 tests = ["_test", "_coverage_report", "_coverage_xml"]
 test = ["tests"]
