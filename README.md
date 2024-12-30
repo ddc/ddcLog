@@ -14,12 +14,13 @@
 # Logs
 + Parameters for all classes are declared as OPTIONAL 
 + If any [.env](./ddcLogs/.env.example) variable is omitted, it falls back to default values here: [settings.py](ddcLogs/settings.py)
-+ timezone parameter can also accept `localtime`, default to `UTC`
++ Function arguments will overwrite any env variable
++ Timezone parameter can also accept `localtime`, default to `UTC`
   + This parameter is only to display the timezone datetime inside the log file
   + For timed rotation, only UTC and localtime are supported, meaning it will rotate at UTC or localtime
     + env variable to change between UTC and localtime is `LOG_ROTATE_AT_UTC` and default to True
-+ streamhandler parameter will add stream handler along with file handler
-+ showlocation parameter will show the filename and the line number where the message originated
++ Streamhandler parameter will add stream handler along with file handler
++ Showlocation parameter will show the filename and the line number where the message originated
 
 
 
@@ -39,8 +40,6 @@ from ddcLogs import BasicLog
 logger = BasicLog(
     level="debug",
     name="app",
-    encoding="UTF-8",
-    datefmt="%Y-%m-%dT%H:%M:%S",
     timezone="America/Sao_Paulo",
     showlocation=False,
 ).init()
@@ -67,8 +66,6 @@ logger = SizeRotatingLog(
     filenames=["main.log", "app1.log"],
     maxmbytes=5,
     daystokeep=7,
-    encoding="UTF-8",
-    datefmt="%Y-%m-%dT%H:%M:%S",
     timezone="America/Chicago",
     streamhandler=True,
     showlocation=False
@@ -98,10 +95,7 @@ logger = TimedRotatingLog(
     directory="/app/logs",
     filenames=["main.log", "app2.log"],
     when="midnight",
-    sufix="%Y%m%d",
     daystokeep=7,
-    encoding="UTF-8",
-    datefmt="%Y-%m-%dT%H:%M:%S",
     timezone="UTC",
     streamhandler=True,
     showlocation=False
@@ -115,7 +109,7 @@ logger.warning("This is a warning example")
 
 
 
-## Env Variables
+## Env Variables (Optional)
 ```
 LOG_LEVEL=DEBUG
 LOG_TIMEZONE=America/Chicago
@@ -134,7 +128,6 @@ LOG_MAX_FILE_SIZE_MB=10
 # TimedRotatingLog
 LOG_ROTATE_WHEN=midnight
 LOG_ROTATE_AT_UTC=True
-LOG_ROTATE_FILE_SUFIX=%Y%m%d
 ```
 
 
